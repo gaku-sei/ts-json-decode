@@ -1,0 +1,41 @@
+{
+  "name": "ts-json-decode",
+  "version": "0.0.1",
+  "description": "A library ensuring type safety when decoding JSON data inspired by Elm",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc --noEmit && jest"
+  },
+  "keywords": [
+    "typescript",
+    "json",
+    "decode",
+    "elm"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gaku-sei/ts-json-decode"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
+  },
+  "dependencies": {
+    "typescript": "^2.6.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.0.1",
+    "jest": "^22.1.4",
+    "ts-jest": "^22.0.1"
+  }
+}
