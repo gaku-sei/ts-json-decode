@@ -2,6 +2,8 @@ import {
   array,
   bool,
   decode,
+  field,
+  map,
   nil,
   num,
   nullable,
@@ -208,6 +210,92 @@ describe("Decoders", () => {
         const received = decode(decoder, input);
 
         await expect(received).resolves.toEqual(expected);
+      });
+    });
+
+    describe("map", () => {
+      it("should create a new decoder, parsing input as string and transforming to number the output", async () => {
+        const decoder = map(({ length }) => length, str);
+
+        await expect(decode(decoder, '"foo"')).resolves.toEqual(3);
+
+        await expect(decode(decoder, "42")).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should handle several decoders", async () => {
+        const decoder = map(() => 1, str, str, str, str, str);
+
+        await expect(decode(decoder, '"foo"')).resolves.toEqual(1);
+
+        await expect(decode(decoder, "42")).rejects.toBeInstanceOf(Error);
+        await expect(decode(decoder, "true")).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should throw even if only one decoder fails", async () => {
+        const decoder = map(() => null, str, str, str, str, num);
+
+        await expect(decode(decoder, '"foo"')).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should handle as many decoders as needed (up to 10)", async () => {
+        const decoder = map(
+          (x, y, z) => ({ x, y, z }),
+          nil,
+          nullable(str),
+          oneOf(nil, num)
+        );
+
+        await expect(decode(decoder, "null")).resolves.toEqual({
+          x: null,
+          y: null,
+          z: null
+        });
+
+        await expect(decode(decoder, '"foo"')).rejects.toBeInstanceOf(Error);
+        await expect(decode(decoder, "42")).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should support recursion", async () => {
+        const decoder = map(
+          x => ({ x }),
+          map(x => x * 2, map(({ length }) => length, str))
+        );
+
+        await expect(decode(decoder, '"foo"')).resolves.toEqual({ x: 6 });
+      });
+    });
+
+    describe("field", () => {
+      it("should parse and extract the required field from object", async () => {
+        const decoder = field("x", num);
+
+        await expect(decode(decoder, '{ "x": 42 }')).resolves.toEqual(42);
+
+        await expect(decode(decoder, '{ "x": "foo" }')).rejects.toBeInstanceOf(
+          Error
+        );
+        await expect(decode(decoder, '{ "y": 42 }')).rejects.toBeInstanceOf(
+          Error
+        );
+      });
+
+      // field does not support recursion yet
+      // due to a pretty complex issue in the createDecoder function
+      // where the concept of "transformation" is lacking
+      // Postponed
+      xit("should support recursion", async () => {
+        const decoder = field("x", field("y", num));
+
+        await expect(decode(decoder, '{ "x": { "y": 42 } }')).resolves.toEqual(
+          42
+        );
+
+        await expect(
+          decode(decoder, '{ "x": { "y": "foo" } }')
+        ).rejects.toBeInstanceOf(Error);
+        await expect(
+          decode(decoder, '{ "y": { "x": 42 } }')
+        ).rejects.toBeInstanceOf(Error);
       });
     });
 
