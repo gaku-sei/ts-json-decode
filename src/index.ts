@@ -336,3 +336,6 @@ export const map: Map = (f: Function, ...decoders: Array<Decoder<any>>) => ({
   validate: (value: any): value is any =>
     !decoders.some(decoder => !decoder.validate(value))
 });
+
+export const field = <T>(name: string, decoder: Decoder<T>): Decoder<T> =>
+  map(output => output[name], object({ [name]: decoder }));
