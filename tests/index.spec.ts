@@ -178,7 +178,8 @@ describe("Decoders", () => {
         const expected = { foo: "bar", bar: 42, baz: [true, false] };
 
         const received = decodeString(decoder, input);
-                await expect(received).resolves.toEqual(expected);
+
+        await expect(received).resolves.toEqual(expected);
       });
 
       it("should parse a simple object according to the given decoders and allow extra attributes", async () => {
@@ -233,12 +234,10 @@ describe("Decoders", () => {
           baz: [true, false]
         };
 
->>>>>>> feat: New map function + New decodeAny function
         const received = decodeString(decoder, input);
 
         await expect(received).resolves.toEqual(expected);
       });
-<<<<<<< HEAD
     });
 
     describe("map", () => {
@@ -288,8 +287,6 @@ describe("Decoders", () => {
         );
         await expect(decodeString(decoder, "42")).rejects.toBeInstanceOf(Error);
       });
-=======
->>>>>>> feat: New map function + New decodeAny function
     });
 
     describe("complex nested validators", () => {
@@ -391,7 +388,6 @@ describe("Decoders", () => {
         await expect(decodeAny(str, true)).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(str, ["foo"])).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(str, null)).rejects.toBeInstanceOf(Error);
-<<<<<<< HEAD
       });
     });
 
@@ -410,26 +406,6 @@ describe("Decoders", () => {
       it("should parse booleans and reject other values", async () => {
         await expect(decodeAny(bool, true)).resolves.toEqual(true);
 
-=======
-      });
-    });
-
-    describe("num", () => {
-      it("should parse numbers and reject other values", async () => {
-        await expect(decodeAny(num, 42)).resolves.toEqual(42);
-
-        await expect(decodeAny(num, "foo")).rejects.toBeInstanceOf(Error);
-        await expect(decodeAny(num, true)).rejects.toBeInstanceOf(Error);
-        await expect(decodeAny(num, ["foo"])).rejects.toBeInstanceOf(Error);
-        await expect(decodeAny(str, null)).rejects.toBeInstanceOf(Error);
-      });
-    });
-
-    describe("bool", () => {
-      it("should parse booleans and reject other values", async () => {
-        await expect(decodeAny(bool, true)).resolves.toEqual(true);
-
->>>>>>> feat: New map function + New decodeAny function
         await expect(decodeAny(bool, "foo")).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(bool, 42)).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(bool, ["foo"])).rejects.toBeInstanceOf(Error);
@@ -446,27 +422,6 @@ describe("Decoders", () => {
         await expect(decodeAny(nil, 42)).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(nil, ["foo"])).rejects.toBeInstanceOf(Error);
       });
-<<<<<<< HEAD
-    });
-
-    describe("array", () => {
-      it("should parse shallow arrays and reject malformed ones", async () => {
-        await expect(decodeAny(array(str), [])).resolves.toEqual([]);
-        await expect(decodeAny(array(str), ["foo", "bar"])).resolves.toEqual([
-          "foo",
-          "bar"
-        ]);
-
-        await expect(decodeAny(array(str), [null])).rejects.toBeInstanceOf(
-          Error
-        );
-        await expect(
-          decodeAny(array(str), ["foo", "bar", 42])
-        ).rejects.toBeInstanceOf(Error);
-        await expect(
-          decodeAny(array(str), ["foo", "bar", true])
-        ).rejects.toBeInstanceOf(Error);
-=======
     });
 
     describe("array", () => {
@@ -488,42 +443,6 @@ describe("Decoders", () => {
         ).rejects.toBeInstanceOf(Error);
       });
 
-      it("should parse deep arrays and reject malformed ones", async () => {
-        await expect(decodeAny(array(array(num)), [])).resolves.toEqual([]);
-        await expect(decodeAny(array(array(num)), [[]])).resolves.toEqual([[]]);
-        await expect(
-          decodeAny(array(array(num)), [[42], [43]])
-        ).resolves.toEqual([[42], [43]]);
-
-        await expect(
-          decodeAny(array(array(num)), [42, 43])
-        ).rejects.toBeInstanceOf(Error);
-        await expect(
-          decodeAny(array(array(num)), [["foo"], ["bar"]])
-        ).rejects.toBeInstanceOf(Error);
-      });
-    });
-
-    describe("nullable", () => {
-      it("should parse null values and the provided decoder and reject the others", async () => {
-        await expect(decodeAny(nullable(str), null)).resolves.toEqual(null);
-        await expect(decodeAny(nullable(str), "foo")).resolves.toEqual("foo");
-
-        await expect(
-          decodeAny(nullable(str), undefined)
-        ).rejects.toBeInstanceOf(Error);
-        await expect(decodeAny(nullable(str), 42)).rejects.toBeInstanceOf(
-          Error
-        );
->>>>>>> feat: New map function + New decodeAny function
-      });
-    });
-
-    describe("oneOf", () => {
-      it("should parse with only one of the two given decoders and reject the other ones", async () => {
-        const decoder = oneOf(str, num);
-
-<<<<<<< HEAD
       it("should parse deep arrays and reject malformed ones", async () => {
         await expect(decodeAny(array(array(num)), [])).resolves.toEqual([]);
         await expect(decodeAny(array(array(num)), [[]])).resolves.toEqual([[]]);
@@ -574,24 +493,6 @@ describe("Decoders", () => {
         await expect(decodeAny(decoder, [])).resolves.toEqual([]);
         await expect(decodeAny(decoder, [true])).resolves.toEqual([true]);
 
-=======
-        await expect(decodeAny(decoder, 42)).resolves.toEqual(42);
-        await expect(decodeAny(decoder, "foo")).resolves.toEqual("foo");
-
-        await expect(decodeAny(decoder, true)).rejects.toBeInstanceOf(Error);
-        await expect(decodeAny(decoder, null)).rejects.toBeInstanceOf(Error);
-        await expect(decodeAny(decoder, [])).rejects.toBeInstanceOf(Error);
-      });
-
-      it("should parse with only one of the three given decoders and reject the other ones", async () => {
-        const decoder = oneOf(str, num, array(bool));
-
-        await expect(decodeAny(decoder, 42)).resolves.toEqual(42);
-        await expect(decodeAny(decoder, "foo")).resolves.toEqual("foo");
-        await expect(decodeAny(decoder, [])).resolves.toEqual([]);
-        await expect(decodeAny(decoder, [true])).resolves.toEqual([true]);
-
->>>>>>> feat: New map function + New decodeAny function
         await expect(decodeAny(decoder, true)).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(decoder, null)).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(decoder, [42, 43])).rejects.toBeInstanceOf(
@@ -639,7 +540,6 @@ describe("Decoders", () => {
 
         await expect(received).resolves.toEqual(input);
       });
-<<<<<<< HEAD
 
       it("should parse a complex object according to the given decoders", async () => {
         const decoder = object({
@@ -706,31 +606,6 @@ describe("Decoders", () => {
 
         await expect(decodeAny(decoder, "foo")).rejects.toBeInstanceOf(Error);
         await expect(decodeAny(decoder, 42)).rejects.toBeInstanceOf(Error);
-=======
-
-      it("should parse a complex object according to the given decoders", async () => {
-        const decoder = object({
-          foo: str,
-          bar: object({
-            qux: array(nullable(bool)),
-            quux: num
-          }),
-          baz: array(bool)
-        });
-
-        const input = {
-          foo: "bar",
-          bar: {
-            qux: [true, null, false],
-            quux: 42
-          },
-          baz: [true, false]
-        };
-
-        const received = decodeAny(decoder, input);
-
-        await expect(received).resolves.toEqual(input);
->>>>>>> feat: New map function + New decodeAny function
       });
     });
 
