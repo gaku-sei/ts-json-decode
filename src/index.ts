@@ -196,23 +196,8 @@ export type DecoderValueDict<T extends DecoderDict> = {
   [K in keyof T]: T[K][""]
 };
 
-export const decodeString = <T>(
-  decoder: Decoder<T>,
-  input: string
-): Promise<T> => decoder.decode(input);
-
-export const decodeAny = <T>(decoder: Decoder<T>, input: any): Promise<T> =>
-  new Promise((resolve, reject) => {
-    if (!decoder.validate(input)) {
-      return reject(
-        new Error(
-          `The provided value ${JSON.stringify(input, null, 2)} is not valid`
-        )
-      );
-    }
-
-    resolve(decoder.decode(JSON.stringify(input)));
-  });
+export const decode = <T>(decoder: Decoder<T>, input: string): Promise<T> =>
+  decoder.decode(input);
 
 const isPlainObject = (value: any): boolean => {
   if (typeof value !== "object") {
