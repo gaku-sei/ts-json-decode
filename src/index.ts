@@ -64,8 +64,9 @@ export type DecoderValueDict<T extends DecoderDict> = {
   [K in keyof T]: T[K][""]
 };
 
-export const decode = <T>(decoder: Decoder<T>, input: string): Promise<T> =>
-  decoder.decode(input);
+export const decode = <T>(
+  decoder: Decoder<T>
+): ((input: string) => Promise<T>) => input => decoder.decode(input);
 
 const isPlainObject = (value: any): boolean => {
   if (typeof value !== "object") {
