@@ -61,10 +61,12 @@ describe("Decoders", () => {
       it("should parse nulls and reject other values", async () => {
         await expect(decodeString(nil)("null")).resolves.toEqual(null);
 
-        // await expect(decode(nil, "true")).rejects.toBeInstanceOf(Error);
-        // await expect(decode(nil, '"foo"')).rejects.toBeInstanceOf(Error);
-        // await expect(decode(nil, "42")).rejects.toBeInstanceOf(Error);
-        // await expect(decode(nil, '["foo"]')).rejects.toBeInstanceOf(Error);
+        await expect(decodeString(nil)("true")).rejects.toBeInstanceOf(Error);
+        await expect(decodeString(nil)('"foo"')).rejects.toBeInstanceOf(Error);
+        await expect(decodeString(nil)("42")).rejects.toBeInstanceOf(Error);
+        await expect(decodeString(nil)('["foo"]')).rejects.toBeInstanceOf(
+          Error,
+        );
       });
     });
 

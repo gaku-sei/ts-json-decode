@@ -8,6 +8,12 @@ export type DecoderValueDict<T extends DecoderDict> = {
   [K in keyof T]: T[K] extends Decoder<infer U> ? U : never
 };
 
+export class DecodeError extends Error {
+  constructor(expectedType: string, receivedType: string) {
+    super(`Expected ${expectedType} but got ${receivedType}`);
+  }
+}
+
 // Please... https://github.com/Microsoft/TypeScript/issues/5453
 export interface Composeable {
   <A, B>(decoder1: Decoder<A>, decoder2: Decoder<B>): Decoder<A | B>;
@@ -252,7 +258,7 @@ export const simpleDecoder = <T>(type: string, f: (value: any) => boolean) => (
 ): Promise<T> =>
   f(value)
     ? Promise.resolve(value)
-    : Promise.reject(new Error(`Expected ${type} but got ${typeof value}`));
+    : Promise.reject(new DecodeError(type, typeof value));
 
 export const str: Decoder<string> = simpleDecoder(
   "string",
@@ -278,14 +284,14 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => async (
   values,
 ): Promise<Array<T>> => {
   if (!Array.isArray(values)) {
-    return Promise.reject(new Error(`Expected array but got ${typeof values}`));
+    throw new DecodeError("array", typeof values);
   }
 
   for (const value of values) {
     await decoder(value);
   }
 
-  return Promise.resolve(values);
+  return values;
 };
 
 export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => async (
@@ -295,13 +301,11 @@ export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => async (
     try {
       await decoder(value);
 
-      return Promise.resolve(value);
+      return value;
     } catch {}
   }
 
-  return Promise.reject(
-    new Error(`Expected one of the provided decoders but got ${typeof value}`),
-  );
+  throw new DecodeError("one of the provided decoders", typeof value);
 };
 
 export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
@@ -319,16 +323,14 @@ export const object = <T extends DecoderDict>(
   value,
 ): Promise<DecoderValueDict<T>> => {
   if (!isPlainObject(value)) {
-    return Promise.reject(
-      new Error(`Expected an object but got ${typeof value}`),
-    );
+    throw new DecodeError("object", typeof value);
   }
 
   for (const key in decoders) {
     await decoders[key](value[key]);
   }
 
-  return Promise.resolve(value);
+  return value;
 };
 
 export const field = <T>(
@@ -343,7 +345,7 @@ export const compose: Composeable = (...decoders: Decoder<any>[]) => async (
     await decoder(value);
   }
 
-  return Promise.resolve(value);
+  return value;
 };
 
 export const map: Map = (
