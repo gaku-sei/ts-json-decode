@@ -221,11 +221,11 @@ export interface Map {
   ): Decoder<K>;
 }
 
-export const decode = async <T>(
+export const decodeString = async <T>(
   decoder: Decoder<T>,
   input: string,
 ): Promise<T> => {
-  let json;
+  let json: any;
 
   try {
     json = JSON.parse(input);
@@ -233,8 +233,13 @@ export const decode = async <T>(
     throw new Error(`Could not parse input: ${input}`);
   }
 
-  return await decoder(json);
+  return decoder(json);
 };
+
+export const decodeValue = async <T>(
+  decoder: Decoder<T>,
+  input: any,
+): Promise<T> => decoder(input);
 
 const isPlainObject = (value: any): boolean => {
   if (typeof value !== "object") {
