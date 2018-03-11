@@ -1,4 +1,4 @@
-export type Decoder<T> = (value: any) => value is T;
+export type Decoder<T> = (value: any) => Promise<T>;
 
 export interface DecoderDict {
   [key: string]: Decoder<any>;
@@ -89,90 +89,260 @@ export interface Composeable {
   ): Decoder<A | B | C | D | E | F | G | H | I | J>;
 }
 
-export const decode = <T>(decoder: Decoder<T>, input: string): Promise<T> =>
-  new Promise((resolve, reject) => {
-    try {
-      const output = JSON.parse(input);
+export interface Map {
+  <A, B>(f: (value: A) => B, decoder: Decoder<A>): Decoder<B>;
 
-      if (!decoder(output)) {
-        return reject(
-          new Error(
-            `The provided value ${JSON.stringify(
-              output,
-              null,
-              2,
-            )} is not valid`,
-          ),
-        );
-      }
+  <A, B, C>(
+    f: (value1: A, value2: B) => C,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+  ): Decoder<C>;
 
-      resolve(output);
-    } catch {
-      reject(new Error(`Could not parse input: ${input}`));
-    }
-  });
+  <A, B, C, D>(
+    f: (value1: A, value2: B, value3: C) => D,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+  ): Decoder<D>;
+
+  <A, B, C, D, E>(
+    f: (value1: A, value2: B, value3: C, value4: D) => E,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+  ): Decoder<E>;
+
+  <A, B, C, D, E, F>(
+    f: (value1: A, value2: B, value3: C, value4: D, value5: E) => F,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+  ): Decoder<F>;
+
+  <A, B, C, D, E, F, G>(
+    f: (value1: A, value2: B, value3: C, value4: D, value5: E, value6: F) => G,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+  ): Decoder<G>;
+
+  <A, B, C, D, E, F, G, H>(
+    f: (
+      value1: A,
+      value2: B,
+      value3: C,
+      value4: D,
+      value5: E,
+      value6: F,
+      value7: G,
+    ) => H,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+  ): Decoder<H>;
+
+  <A, B, C, D, E, F, G, H, I>(
+    f: (
+      value1: A,
+      value2: B,
+      value3: C,
+      value4: D,
+      value5: E,
+      value6: F,
+      value7: G,
+      value8: H,
+    ) => I,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+  ): Decoder<I>;
+
+  <A, B, C, D, E, F, G, H, I, J>(
+    f: (
+      value1: A,
+      value2: B,
+      value3: C,
+      value4: D,
+      value5: E,
+      value6: F,
+      value7: G,
+      value8: H,
+      value9: I,
+    ) => J,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+  ): Decoder<J>;
+
+  <A, B, C, D, E, F, G, H, I, J, K>(
+    f: (
+      value1: A,
+      value2: B,
+      value3: C,
+      value4: D,
+      value5: E,
+      value6: F,
+      value7: G,
+      value8: H,
+      value9: I,
+      value10: J,
+    ) => K,
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+    decoder10: Decoder<J>,
+  ): Decoder<K>;
+}
+
+export const decode = async <T>(
+  decoder: Decoder<T>,
+  input: string,
+): Promise<T> => {
+  let json;
+
+  try {
+    json = JSON.parse(input);
+  } catch {
+    throw new Error(`Could not parse input: ${input}`);
+  }
+
+  return await decoder(json);
+};
 
 const isPlainObject = (value: any): boolean => {
   if (typeof value !== "object") {
     return false;
   }
 
-  if (Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  return true;
+  return Object.prototype.toString.call(value) === "[object Object]";
 };
 
-export const str: Decoder<string> = (value): value is string =>
-  typeof value === "string";
-
-export const num: Decoder<number> = (value): value is number =>
-  typeof value === "number";
-
-export const bool: Decoder<boolean> = (value): value is boolean =>
-  typeof value === "boolean";
-
-export const nil: Decoder<null> = (value): value is null => value === null;
-
-export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
-  value,
-): value is Array<T> => {
-  if (!Array.isArray(value)) {
-    return false;
-  }
-
-  return !value.some(v => !decoder(v));
-};
-
-export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => (
+export const simpleDecoder = <T>(type: string, f: (value: any) => boolean) => (
   value: any,
-): value is any => decoders.some(decoder => decoder(value));
+): Promise<T> =>
+  f(value)
+    ? Promise.resolve(value)
+    : Promise.reject(new Error(`Expected ${type} but got ${typeof value}`));
+
+export const str: Decoder<string> = simpleDecoder(
+  "string",
+  value => typeof value === "string",
+);
+
+export const num: Decoder<number> = simpleDecoder(
+  "number",
+  value => typeof value === "number",
+);
+
+export const bool: Decoder<boolean> = simpleDecoder(
+  "boolean",
+  value => typeof value === "boolean",
+);
+
+export const nil: Decoder<null> = simpleDecoder(
+  "null",
+  value => value === null,
+);
+
+export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => async (
+  values,
+): Promise<Array<T>> => {
+  if (!Array.isArray(values)) {
+    return Promise.reject(new Error(`Expected array but got ${typeof values}`));
+  }
+
+  for (const value of values) {
+    await decoder(value);
+  }
+
+  return Promise.resolve(values);
+};
+
+export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => async (
+  value: any,
+) => {
+  for (const decoder of decoders) {
+    try {
+      await decoder(value);
+
+      return Promise.resolve(value);
+    } catch {}
+  }
+
+  return Promise.reject(
+    new Error(`Expected one of the provided decoders but got ${typeof value}`),
+  );
+};
 
 export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
   oneOf(nil, decoder);
 
 export const maybe = <T>(decoder: Decoder<T>): Decoder<T | undefined> =>
-  oneOf((value): value is undefined => value === undefined, decoder);
+  oneOf(
+    simpleDecoder<undefined>("undefined", value => value === undefined),
+    decoder,
+  );
 
 export const object = <T extends DecoderDict>(
   decoders: T,
-): Decoder<DecoderValueDict<T>> => (value): value is DecoderValueDict<T> => {
+): Decoder<DecoderValueDict<T>> => async (
+  value,
+): Promise<DecoderValueDict<T>> => {
   if (!isPlainObject(value)) {
-    return false;
+    return Promise.reject(
+      new Error(`Expected an object but got ${typeof value}`),
+    );
   }
 
   for (const key in decoders) {
-    if (!decoders[key](value[key])) {
-      return false;
-    }
+    await decoders[key](value[key]);
   }
 
-  return true;
+  return Promise.resolve(value);
 };
 
-export const compose: Composeable = (...decoders: Decoder<any>[]) => (
+export const compose: Composeable = (...decoders: Decoder<any>[]) => async (
   value: any,
-): value is any => {
-  return !decoders.some(decoder => !decoder(value));
+): Promise<any> => {
+  for (const decoder of decoders) {
+    await decoder(value);
+  }
+
+  return Promise.resolve(value);
 };
+
+export const map: Map = (
+  f: (...value: any[]) => any,
+  ...decoders: Array<Decoder<any>>
+) => async (value: any) =>
+  f(...(await Promise.all(decoders.map(decoder => decoder(value)))));
+
+export const field = <T>(name: string, decoder: Decoder<T>): Decoder<T> =>
+  map(output => output[name], object({ [name]: decoder }));
