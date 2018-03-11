@@ -333,6 +333,11 @@ export const object = <T extends DecoderDict>(
   return Promise.resolve(value);
 };
 
+export const field = <T>(
+  name: string,
+  decoder: Decoder<T>,
+): Decoder<T> => async (value): Promise<T> => await decoder(value[name]);
+
 export const compose: Composeable = (...decoders: Decoder<any>[]) => async (
   value: any,
 ): Promise<any> => {
@@ -348,6 +353,3 @@ export const map: Map = (
   ...decoders: Array<Decoder<any>>
 ) => async (value: any) =>
   f(...(await Promise.all(decoders.map(decoder => decoder(value)))));
-
-export const field = <T>(name: string, decoder: Decoder<T>): Decoder<T> =>
-  map(output => output[name], object({ [name]: decoder }));
