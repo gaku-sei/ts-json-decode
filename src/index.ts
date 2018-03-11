@@ -1,15 +1,12 @@
-export type DecoderFunction<T> = (input: string) => Promise<T>;
-export type ValidateFunction<T> = (value: any) => value is T;
+export type Decoder<T> = (value: any) => value is T;
 
-export interface Decoder<T> {
-  readonly decode: DecoderFunction<T>;
-  readonly validate: ValidateFunction<T>;
-  // For the moment the following creates a type hole
-  // if the end user tries to acces this hollow property
-  // since the value it refers to is always null.
-  // Should be fixed by https://github.com/Microsoft/TypeScript/pull/21316
-  readonly "": T;
+export interface DecoderDict {
+  [key: string]: Decoder<any>;
 }
+
+export type DecoderValueDict<T extends DecoderDict> = {
+  [K in keyof T]: T[K] extends Decoder<infer U> ? U : never
+};
 
 // Please... https://github.com/Microsoft/TypeScript/issues/5453
 export interface OneOf {
@@ -56,16 +53,28 @@ export interface OneOf {
   ): Decoder<A | B | C | D | E | F | G>;
 }
 
-export interface DecoderDict {
-  [key: string]: Decoder<any>;
-}
-
-export type DecoderValueDict<T extends DecoderDict> = {
-  [K in keyof T]: T[K][""]
-};
-
 export const decode = <T>(decoder: Decoder<T>, input: string): Promise<T> =>
-  decoder.decode(input);
+  new Promise((resolve, reject) => {
+    try {
+      const output = JSON.parse(input);
+
+      if (!decoder(output)) {
+        return reject(
+          new Error(
+            `The provided value ${JSON.stringify(
+              output,
+              null,
+              2,
+            )} is not valid`,
+          ),
+        );
+      }
+
+      resolve(output);
+    } catch {
+      reject(new Error(`Could not parse input: ${input}`));
+    }
+  });
 
 const isPlainObject = (value: any): boolean => {
   if (typeof value !== "object") {
@@ -79,86 +88,46 @@ const isPlainObject = (value: any): boolean => {
   return true;
 };
 
-const createDecoder = <T>(validate: ValidateFunction<T>): Decoder<T> => ({
-  // Here is the hacky value
-  "": null as never,
-  decode: input =>
-    new Promise((resolve, reject) => {
-      try {
-        const output = JSON.parse(input);
+export const str: Decoder<string> = (value): value is string =>
+  typeof value === "string";
 
-        if (!validate(output)) {
-          return reject(
-            new Error(
-              `The provided value ${JSON.stringify(
-                output,
-                null,
-                2,
-              )} is not valid`,
-            ),
-          );
-        }
+export const num: Decoder<number> = (value): value is number =>
+  typeof value === "number";
 
-        resolve(output);
-      } catch {
-        reject(new Error(`Could not parse input: ${input}`));
-      }
-    }),
-  validate,
-});
+export const bool: Decoder<boolean> = (value): value is boolean =>
+  typeof value === "boolean";
 
-export const str: Decoder<string> = createDecoder(function(
+export const nil: Decoder<null> = (value): value is null => value === null;
+
+export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
   value,
-): value is string {
-  return typeof value === "string";
-});
+): value is Array<T> => {
+  if (!Array.isArray(value)) {
+    return false;
+  }
 
-export const num: Decoder<number> = createDecoder(function(
-  value,
-): value is number {
-  return typeof value === "number";
-});
+  return !value.some(v => !decoder(v));
+};
 
-export const bool: Decoder<boolean> = createDecoder(function(
-  value,
-): value is boolean {
-  return typeof value === "boolean";
-});
-
-export const nil: Decoder<null> = createDecoder(function(value): value is null {
-  return value === null;
-});
-
-export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> =>
-  createDecoder(function(value): value is Array<T> {
-    if (!Array.isArray(value)) {
-      return false;
-    }
-
-    return !value.some(v => !decoder.validate(v));
-  });
-
-export const oneOf: OneOf = (...decoders: Array<Decoder<any>>) =>
-  createDecoder(function(value): value is any {
-    return decoders.some(decoder => decoder.validate(value));
-  });
+export const oneOf: OneOf = (...decoders: Array<Decoder<any>>) => (
+  value: any,
+): value is any => decoders.some(decoder => decoder(value));
 
 export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
   oneOf(nil, decoder);
 
 export const object = <T extends DecoderDict>(
   decoders: T,
-): Decoder<DecoderValueDict<T>> =>
-  createDecoder(function(value): value is DecoderValueDict<T> {
-    if (!isPlainObject(value)) {
+): Decoder<DecoderValueDict<T>> => (value): value is DecoderValueDict<T> => {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+
+  for (const key in decoders) {
+    if (!(key in value) || !decoders[key](value[key])) {
       return false;
     }
+  }
 
-    for (const key in decoders) {
-      if (!(key in value) || !decoders[key].validate(value[key])) {
-        return false;
-      }
-    }
-
-    return true;
-  });
+  return true;
+};

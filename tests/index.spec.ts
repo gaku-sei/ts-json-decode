@@ -7,7 +7,7 @@ import {
   nullable,
   object,
   oneOf,
-  str
+  str,
 } from "../src";
 
 describe("Decoders", () => {
@@ -62,17 +62,17 @@ describe("Decoders", () => {
         await expect(decode(array(str), "[]")).resolves.toEqual([]);
         await expect(decode(array(str), '["foo", "bar"]')).resolves.toEqual([
           "foo",
-          "bar"
+          "bar",
         ]);
 
         await expect(decode(array(str), "[null]")).rejects.toBeInstanceOf(
-          Error
+          Error,
         );
         await expect(
-          decode(array(str), '["foo", "bar", 42]')
+          decode(array(str), '["foo", "bar", 42]'),
         ).rejects.toBeInstanceOf(Error);
         await expect(
-          decode(array(str), '["foo", "bar", true]')
+          decode(array(str), '["foo", "bar", true]'),
         ).rejects.toBeInstanceOf(Error);
       });
 
@@ -80,14 +80,14 @@ describe("Decoders", () => {
         await expect(decode(array(array(num)), "[]")).resolves.toEqual([]);
         await expect(decode(array(array(num)), "[[]]")).resolves.toEqual([[]]);
         await expect(
-          decode(array(array(num)), "[[42], [43]]")
+          decode(array(array(num)), "[[42], [43]]"),
         ).resolves.toEqual([[42], [43]]);
 
         await expect(
-          decode(array(array(num)), "[42, 43]")
+          decode(array(array(num)), "[42, 43]"),
         ).rejects.toBeInstanceOf(Error);
         await expect(
-          decode(array(array(num)), '[["foo"], ["bar"]]')
+          decode(array(array(num)), '[["foo"], ["bar"]]'),
         ).rejects.toBeInstanceOf(Error);
       });
     });
@@ -98,7 +98,7 @@ describe("Decoders", () => {
         await expect(decode(nullable(str), '"foo"')).resolves.toEqual("foo");
 
         await expect(decode(nullable(str), "undefined")).rejects.toBeInstanceOf(
-          Error
+          Error,
         );
         await expect(decode(nullable(str), "42")).rejects.toBeInstanceOf(Error);
       });
@@ -135,7 +135,7 @@ describe("Decoders", () => {
         const decoder = object({
           foo: str,
           bar: num,
-          baz: array(bool)
+          baz: array(bool),
         });
 
         const input = `
@@ -157,7 +157,7 @@ describe("Decoders", () => {
         const decoder = object({
           foo: str,
           bar: num,
-          baz: array(bool)
+          baz: array(bool),
         });
 
         const input = `
@@ -183,9 +183,9 @@ describe("Decoders", () => {
           foo: str,
           bar: object({
             qux: array(nullable(bool)),
-            quux: num
+            quux: num,
           }),
-          baz: array(bool)
+          baz: array(bool),
         });
 
         const input = `
@@ -202,7 +202,7 @@ describe("Decoders", () => {
         const expected = {
           foo: "bar",
           bar: { qux: [true, null, false], quux: 42 },
-          baz: [true, false]
+          baz: [true, false],
         };
 
         const received = decode(decoder, input);
@@ -219,11 +219,11 @@ describe("Decoders", () => {
               object({
                 foo: nullable(num),
                 bar: object({
-                  baz: nullable(str)
-                })
-              })
-            )
-          )
+                  baz: nullable(str),
+                }),
+              }),
+            ),
+          ),
         );
 
         const input = `
@@ -267,31 +267,31 @@ describe("Decoders", () => {
             {
               foo: null,
               bar: {
-                baz: "foo"
-              }
+                baz: "foo",
+              },
             },
             {
               foo: 42,
               bar: {
-                baz: "bar"
-              }
+                baz: "bar",
+              },
             },
             {
               foo: 43,
               bar: {
-                baz: null
-              }
+                baz: null,
+              },
             },
             {
               foo: null,
               bar: {
-                baz: null
-              }
-            }
+                baz: null,
+              },
+            },
           ],
           null,
           [],
-          null
+          null,
         ];
 
         const received = decode(decoder, input);
