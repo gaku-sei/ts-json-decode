@@ -9,7 +9,7 @@ export type DecoderValueDict<T extends DecoderDict> = {
 };
 
 // Please... https://github.com/Microsoft/TypeScript/issues/5453
-export interface OneOf {
+export interface Composeable {
   <A, B>(decoder1: Decoder<A>, decoder2: Decoder<B>): Decoder<A | B>;
 
   <A, B, C>(
@@ -51,6 +51,42 @@ export interface OneOf {
     decoder6: Decoder<F>,
     decoder7: Decoder<G>,
   ): Decoder<A | B | C | D | E | F | G>;
+
+  <A, B, C, D, E, F, G, H>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+  ): Decoder<A | B | C | D | E | F | G | H>;
+
+  <A, B, C, D, E, F, G, H, I>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+  ): Decoder<A | B | C | D | E | F | G | H | I>;
+
+  <A, B, C, D, E, F, G, H, I, J>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+    decoder10: Decoder<J>,
+  ): Decoder<A | B | C | D | E | F | G | H | I | J>;
 }
 
 export const decode = <T>(decoder: Decoder<T>, input: string): Promise<T> =>
@@ -109,12 +145,15 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
   return !value.some(v => !decoder(v));
 };
 
-export const oneOf: OneOf = (...decoders: Array<Decoder<any>>) => (
+export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => (
   value: any,
 ): value is any => decoders.some(decoder => decoder(value));
 
 export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
   oneOf(nil, decoder);
+
+export const maybe = <T>(decoder: Decoder<T>): Decoder<T | undefined> =>
+  oneOf((value): value is undefined => value === undefined, decoder);
 
 export const object = <T extends DecoderDict>(
   decoders: T,
@@ -124,10 +163,16 @@ export const object = <T extends DecoderDict>(
   }
 
   for (const key in decoders) {
-    if (!(key in value) || !decoders[key](value[key])) {
+    if (!decoders[key](value[key])) {
       return false;
     }
   }
 
   return true;
+};
+
+export const compose: Composeable = (...decoders: Decoder<any>[]) => (
+  value: any,
+): value is any => {
+  return !decoders.some(decoder => !decoder(value));
 };

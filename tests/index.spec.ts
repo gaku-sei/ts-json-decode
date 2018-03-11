@@ -2,6 +2,8 @@ import {
   array,
   bool,
   decode,
+  compose,
+  maybe,
   nil,
   num,
   nullable,
@@ -92,6 +94,20 @@ describe("Decoders", () => {
       });
     });
 
+    describe("maybe", () => {
+      it("should parse undefined values and the provided decoder and reject the others", async () => {
+        const decoder = object({ foo: maybe(str) });
+
+        await expect(decode(decoder, "{}")).resolves.toEqual({});
+        await expect(decode(decoder, '{ "foo": "foo" }')).resolves.toEqual({
+          foo: "foo",
+        });
+
+        await expect(decode(maybe(str), "null")).rejects.toBeInstanceOf(Error);
+        await expect(decode(maybe(str), "42")).rejects.toBeInstanceOf(Error);
+      });
+    });
+
     describe("nullable", () => {
       it("should parse null values and the provided decoder and reject the others", async () => {
         await expect(decode(nullable(str), "null")).resolves.toEqual(null);
@@ -127,6 +143,36 @@ describe("Decoders", () => {
         await expect(decode(decoder, "true")).rejects.toBeInstanceOf(Error);
         await expect(decode(decoder, "null")).rejects.toBeInstanceOf(Error);
         await expect(decode(decoder, "[42, 43]")).rejects.toBeInstanceOf(Error);
+      });
+    });
+
+    describe("compose", () => {
+      it("should compose the two provided decoders", async () => {
+        const decoder = compose(str, str);
+
+        await expect(decode(decoder, '"foo"')).resolves.toEqual("foo");
+
+        await expect(decode(decoder, "42")).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should throw even if only one decoder fails", async () => {
+        const decoder = compose(str, str, str, str, num);
+
+        await expect(decode(decoder, '"foo"')).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should handle as many decoders as needed (up to 10)", async () => {
+        const decoder = compose(nil, nullable(str), oneOf(nil, num));
+
+        await expect(decode(decoder, "null")).resolves.toEqual(null);
+        await expect(decode(decoder, '"foo"')).rejects.toBeInstanceOf(Error);
+        await expect(decode(decoder, "42")).rejects.toBeInstanceOf(Error);
+      });
+
+      it("should support recursion", async () => {
+        const decoder = compose(nil, compose(nullable(str), oneOf(nil, num)));
+
+        await expect(decode(decoder, "null")).resolves.toEqual(null);
       });
     });
 
