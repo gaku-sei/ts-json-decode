@@ -221,8 +221,7 @@ export interface Map {
   ): Decoder<K>;
 }
 
-export const decodeString = async <T>(
-  decoder: Decoder<T>,
+export const decodeString = <T>(decoder: Decoder<T>) => async (
   input: string,
 ): Promise<T> => {
   let json: any;
@@ -236,8 +235,7 @@ export const decodeString = async <T>(
   return decoder(json);
 };
 
-export const decodeValue = async <T>(
-  decoder: Decoder<T>,
+export const decodeValue = <T>(decoder: Decoder<T>) => async (
   input: any,
 ): Promise<T> => decoder(input);
 
