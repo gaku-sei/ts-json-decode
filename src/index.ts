@@ -18,14 +18,14 @@ export interface OneOf {
   <A, B, C>(
     decoder1: Decoder<A>,
     decoder2: Decoder<B>,
-    decoder3: Decoder<C>
+    decoder3: Decoder<C>,
   ): Decoder<A | B | C>;
 
   <A, B, C, D>(
     decoder1: Decoder<A>,
     decoder2: Decoder<B>,
     decoder3: Decoder<C>,
-    decoder4: Decoder<D>
+    decoder4: Decoder<D>,
   ): Decoder<A | B | C | D>;
 
   <A, B, C, D, E>(
@@ -33,7 +33,7 @@ export interface OneOf {
     decoder2: Decoder<B>,
     decoder3: Decoder<C>,
     decoder4: Decoder<D>,
-    decoder5: Decoder<E>
+    decoder5: Decoder<E>,
   ): Decoder<A | B | C | D | E>;
 
   <A, B, C, D, E, F>(
@@ -42,7 +42,7 @@ export interface OneOf {
     decoder3: Decoder<C>,
     decoder4: Decoder<D>,
     decoder5: Decoder<E>,
-    decoder6: Decoder<F>
+    decoder6: Decoder<F>,
   ): Decoder<A | B | C | D | E | F>;
 
   <A, B, C, D, E, F, G>(
@@ -52,7 +52,7 @@ export interface OneOf {
     decoder4: Decoder<D>,
     decoder5: Decoder<E>,
     decoder6: Decoder<F>,
-    decoder7: Decoder<G>
+    decoder7: Decoder<G>,
   ): Decoder<A | B | C | D | E | F | G>;
 }
 
@@ -93,9 +93,9 @@ const createDecoder = <T>(validate: ValidateFunction<T>): Decoder<T> => ({
               `The provided value ${JSON.stringify(
                 output,
                 null,
-                2
-              )} is not valid`
-            )
+                2,
+              )} is not valid`,
+            ),
           );
         }
 
@@ -104,23 +104,23 @@ const createDecoder = <T>(validate: ValidateFunction<T>): Decoder<T> => ({
         reject(new Error(`Could not parse input: ${input}`));
       }
     }),
-  validate
+  validate,
 });
 
 export const str: Decoder<string> = createDecoder(function(
-  value
+  value,
 ): value is string {
   return typeof value === "string";
 });
 
 export const num: Decoder<number> = createDecoder(function(
-  value
+  value,
 ): value is number {
   return typeof value === "number";
 });
 
 export const bool: Decoder<boolean> = createDecoder(function(
-  value
+  value,
 ): value is boolean {
   return typeof value === "boolean";
 });
@@ -135,11 +135,7 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> =>
       return false;
     }
 
-    if (value.some(v => !decoder.validate(v))) {
-      return false;
-    }
-
-    return true;
+    return !value.some(v => !decoder.validate(v));
   });
 
 export const oneOf: OneOf = (...decoders: Array<Decoder<any>>) =>
@@ -151,7 +147,7 @@ export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
   oneOf(nil, decoder);
 
 export const object = <T extends DecoderDict>(
-  decoders: T
+  decoders: T,
 ): Decoder<DecoderValueDict<T>> =>
   createDecoder(function(value): value is DecoderValueDict<T> {
     if (!isPlainObject(value)) {
@@ -159,11 +155,7 @@ export const object = <T extends DecoderDict>(
     }
 
     for (const key in decoders) {
-      if (!(key in value)) {
-        return false;
-      }
-
-      if (!decoders[key].validate(value[key])) {
+      if (!(key in value) || !decoders[key].validate(value[key])) {
         return false;
       }
     }
