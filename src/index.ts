@@ -227,6 +227,83 @@ export interface Map {
   ): Decoder<K>;
 }
 
+export interface Union {
+  <A, B, C>(decoder: Decoder<A>, value1: B, value2: C): Decoder<B | C>;
+  <A, B, C, D>(decoder: Decoder<A>, value1: B, value2: C, value3: D): Decoder<
+    B | C | D
+  >;
+  <A, B, C, D, E>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+  ): Decoder<B | C | D | E>;
+  <A, B, C, D, E, F>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+    value5: F,
+  ): Decoder<B | C | D | E | F>;
+  <A, B, C, D, E, F, G>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+    value5: F,
+    value6: G,
+  ): Decoder<B | C | D | E | F | G>;
+  <A, B, C, D, E, F, G, H>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+    value5: F,
+    value6: G,
+    value7: H,
+  ): Decoder<B | C | D | E | F | G | H>;
+  <A, B, C, D, E, F, G, H, I>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+    value5: F,
+    value6: G,
+    value7: H,
+    value8: I,
+  ): Decoder<B | C | D | E | F | G | H | I>;
+  <A, B, C, D, E, F, G, H, I, J>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+    value5: F,
+    value6: G,
+    value7: H,
+    value8: I,
+    value9: J,
+  ): Decoder<B | C | D | E | F | G | H | I | J>;
+  <A, B, C, D, E, F, G, H, I, J, K>(
+    decoder: Decoder<A>,
+    value1: B,
+    value2: C,
+    value3: D,
+    value4: E,
+    value5: F,
+    value6: G,
+    value7: H,
+    value8: I,
+    value9: J,
+    value10: K,
+  ): Decoder<B | C | D | E | F | G | H | I | J | K>;
+}
+
 export const decodeString = <T>(decoder: Decoder<T>) => async (
   input: string,
 ): Promise<T> => {
@@ -315,6 +392,18 @@ export const maybe = <T>(decoder: Decoder<T>): Decoder<T | undefined> =>
   oneOf(
     simpleDecoder<undefined>("undefined", value => value === undefined),
     decoder,
+  );
+
+export const union: Union = (decoder: Decoder<any>, ...values: any[]) =>
+  compose(
+    decoder,
+    value => {
+      if (!values.includes(value)) {
+        return Promise.reject(new DecodeError(`${values.join(" or ")}`, value));
+      }
+
+      return Promise.resolve(value);
+    },
   );
 
 export const object = <T extends DecoderDict>(

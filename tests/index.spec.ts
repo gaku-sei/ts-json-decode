@@ -13,6 +13,7 @@ import {
   oneOf,
   str,
   decodeValue,
+  union,
 } from "../src";
 
 describe("Decoders", () => {
@@ -184,7 +185,10 @@ describe("Decoders", () => {
 
     describe("compose", () => {
       it("should compose the two provided decoders", async () => {
-        const decoder = compose(str, str);
+        const decoder = compose(
+          str,
+          str,
+        );
 
         await expect(decodeString(decoder)('"foo"')).resolves.toEqual("foo");
 
@@ -192,7 +196,13 @@ describe("Decoders", () => {
       });
 
       it("should throw even if only one decoder fails", async () => {
-        const decoder = compose(str, str, str, str, num);
+        const decoder = compose(
+          str,
+          str,
+          str,
+          str,
+          num,
+        );
 
         await expect(decodeString(decoder)('"foo"')).rejects.toBeInstanceOf(
           Error,
@@ -200,7 +210,11 @@ describe("Decoders", () => {
       });
 
       it("should handle as many decoders as needed (up to 10)", async () => {
-        const decoder = compose(nil, nullable(str), oneOf(nil, num));
+        const decoder = compose(
+          nil,
+          nullable(str),
+          oneOf(nil, num),
+        );
 
         await expect(decodeString(decoder)("null")).resolves.toEqual(null);
         await expect(decodeString(decoder)('"foo"')).rejects.toBeInstanceOf(
@@ -210,7 +224,13 @@ describe("Decoders", () => {
       });
 
       it("should support recursion", async () => {
-        const decoder = compose(nil, compose(nullable(str), oneOf(nil, num)));
+        const decoder = compose(
+          nil,
+          compose(
+            nullable(str),
+            oneOf(nil, num),
+          ),
+        );
 
         await expect(decodeString(decoder)("null")).resolves.toEqual(null);
       });
@@ -301,6 +321,57 @@ describe("Decoders", () => {
         await expect(
           decodeString(decoder)('{ "y": { "x": 42 } }'),
         ).rejects.toBeInstanceOf(Error);
+      });
+    });
+
+    describe("union", () => {
+      it("should parse a simple union of two simple values", async () => {
+        const decoder = union<string, "foo", "bar">(str, "foo", "bar");
+
+        await expect(decodeString(decoder)('"foo"')).resolves.toEqual("foo");
+        await expect(decodeString(decoder)('"bar"')).resolves.toEqual("bar");
+        await expect(decodeString(decoder)('"foobar"')).rejects.toBeInstanceOf(
+          Error,
+        );
+        await expect(decodeString(decoder)("42")).rejects.toBeInstanceOf(Error);
+        await expect(decodeString(decoder)("null")).rejects.toBeInstanceOf(
+          Error,
+        );
+      });
+
+      it("should parse a simple union of ten simple values", async () => {
+        const decoder = union<number, 0, 1, 2, 3, 5, 8, 13, 20, 40, 100>(
+          num,
+          0,
+          1,
+          2,
+          3,
+          5,
+          8,
+          13,
+          20,
+          40,
+          100,
+        );
+
+        await expect(decodeString(decoder)("0")).resolves.toEqual(0);
+        await expect(decodeString(decoder)("1")).resolves.toEqual(1);
+        await expect(decodeString(decoder)("2")).resolves.toEqual(2);
+        await expect(decodeString(decoder)("3")).resolves.toEqual(3);
+        await expect(decodeString(decoder)("5")).resolves.toEqual(5);
+        await expect(decodeString(decoder)("8")).resolves.toEqual(8);
+        await expect(decodeString(decoder)("13")).resolves.toEqual(13);
+        await expect(decodeString(decoder)("20")).resolves.toEqual(20);
+        await expect(decodeString(decoder)("40")).resolves.toEqual(40);
+        await expect(decodeString(decoder)("100")).resolves.toEqual(100);
+
+        await expect(decodeString(decoder)("42")).rejects.toBeInstanceOf(Error);
+        await expect(decodeString(decoder)('"foobar"')).rejects.toBeInstanceOf(
+          Error,
+        );
+        await expect(decodeString(decoder)("null")).rejects.toBeInstanceOf(
+          Error,
+        );
       });
     });
 
