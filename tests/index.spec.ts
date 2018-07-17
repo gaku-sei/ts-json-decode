@@ -326,7 +326,7 @@ describe("Decoders", () => {
 
     describe("union", () => {
       it("should parse a simple union of two simple values", async () => {
-        const decoder = union<string, "foo", "bar">(str, "foo", "bar");
+        const decoder = union<string, Array<"foo" | "bar">>(str, "foo", "bar");
 
         await expect(decodeString(decoder)('"foo"')).resolves.toEqual("foo");
         await expect(decodeString(decoder)('"bar"')).resolves.toEqual("bar");
@@ -340,19 +340,10 @@ describe("Decoders", () => {
       });
 
       it("should parse a simple union of ten simple values", async () => {
-        const decoder = union<number, 0, 1, 2, 3, 5, 8, 13, 20, 40, 100>(
-          num,
-          0,
-          1,
-          2,
-          3,
-          5,
-          8,
-          13,
-          20,
-          40,
-          100,
-        );
+        const decoder = union<
+          number,
+          Array<0 | 1 | 2 | 3 | 5 | 8 | 13 | 20 | 40 | 100>
+        >(num, 0, 1, 2, 3, 5, 8, 13, 20, 40, 100);
 
         await expect(decodeString(decoder)("0")).resolves.toEqual(0);
         await expect(decodeString(decoder)("1")).resolves.toEqual(1);

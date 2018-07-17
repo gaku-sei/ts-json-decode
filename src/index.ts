@@ -14,295 +14,27 @@ export class DecodeError extends Error {
   }
 }
 
-// Please... https://github.com/Microsoft/TypeScript/issues/5453
-export interface Composeable {
-  <A, B>(decoder1: Decoder<A>, decoder2: Decoder<B>): Decoder<A | B>;
+export type Composeable = <Decoders extends Array<Decoder<any>>>(
+  ...decoders: Decoders
+) => Decoder<Decoders[number] extends Decoder<infer T> ? T : never>;
 
-  <A, B, C>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-  ): Decoder<A | B | C>;
+export type Map = <Decoders extends Array<Decoder<any>>, T>(
+  // TypeScript is not able to fully understand the types of values yet.
+  // For example a in a decoder like `map((a, b) => ..., str, num);`,
+  // `a` and `b` will have type `string | number` except of `a` being `string` and `b` being `number`
+  f: (
+    ...values: Array<Decoders[number] extends Decoder<infer U> ? U : never>
+  ) => T,
+  ...decoders: Decoders
+) => Decoder<T>;
 
-  <A, B, C, D>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-  ): Decoder<A | B | C | D>;
-
-  <A, B, C, D, E>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-  ): Decoder<A | B | C | D | E>;
-
-  <A, B, C, D, E, F>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-  ): Decoder<A | B | C | D | E | F>;
-
-  <A, B, C, D, E, F, G>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-  ): Decoder<A | B | C | D | E | F | G>;
-
-  <A, B, C, D, E, F, G, H>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-    decoder8: Decoder<H>,
-  ): Decoder<A | B | C | D | E | F | G | H>;
-
-  <A, B, C, D, E, F, G, H, I>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-    decoder8: Decoder<H>,
-    decoder9: Decoder<I>,
-  ): Decoder<A | B | C | D | E | F | G | H | I>;
-
-  <A, B, C, D, E, F, G, H, I, J>(
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-    decoder8: Decoder<H>,
-    decoder9: Decoder<I>,
-    decoder10: Decoder<J>,
-  ): Decoder<A | B | C | D | E | F | G | H | I | J>;
-}
-
-export interface Map {
-  <A, B>(f: (value: A) => B, decoder: Decoder<A>): Decoder<B>;
-
-  <A, B, C>(
-    f: (value1: A, value2: B) => C,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-  ): Decoder<C>;
-
-  <A, B, C, D>(
-    f: (value1: A, value2: B, value3: C) => D,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-  ): Decoder<D>;
-
-  <A, B, C, D, E>(
-    f: (value1: A, value2: B, value3: C, value4: D) => E,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-  ): Decoder<E>;
-
-  <A, B, C, D, E, F>(
-    f: (value1: A, value2: B, value3: C, value4: D, value5: E) => F,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-  ): Decoder<F>;
-
-  <A, B, C, D, E, F, G>(
-    f: (value1: A, value2: B, value3: C, value4: D, value5: E, value6: F) => G,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-  ): Decoder<G>;
-
-  <A, B, C, D, E, F, G, H>(
-    f: (
-      value1: A,
-      value2: B,
-      value3: C,
-      value4: D,
-      value5: E,
-      value6: F,
-      value7: G,
-    ) => H,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-  ): Decoder<H>;
-
-  <A, B, C, D, E, F, G, H, I>(
-    f: (
-      value1: A,
-      value2: B,
-      value3: C,
-      value4: D,
-      value5: E,
-      value6: F,
-      value7: G,
-      value8: H,
-    ) => I,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-    decoder8: Decoder<H>,
-  ): Decoder<I>;
-
-  <A, B, C, D, E, F, G, H, I, J>(
-    f: (
-      value1: A,
-      value2: B,
-      value3: C,
-      value4: D,
-      value5: E,
-      value6: F,
-      value7: G,
-      value8: H,
-      value9: I,
-    ) => J,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-    decoder8: Decoder<H>,
-    decoder9: Decoder<I>,
-  ): Decoder<J>;
-
-  <A, B, C, D, E, F, G, H, I, J, K>(
-    f: (
-      value1: A,
-      value2: B,
-      value3: C,
-      value4: D,
-      value5: E,
-      value6: F,
-      value7: G,
-      value8: H,
-      value9: I,
-      value10: J,
-    ) => K,
-    decoder1: Decoder<A>,
-    decoder2: Decoder<B>,
-    decoder3: Decoder<C>,
-    decoder4: Decoder<D>,
-    decoder5: Decoder<E>,
-    decoder6: Decoder<F>,
-    decoder7: Decoder<G>,
-    decoder8: Decoder<H>,
-    decoder9: Decoder<I>,
-    decoder10: Decoder<J>,
-  ): Decoder<K>;
-}
-
-export interface Union {
-  <A, B, C>(decoder: Decoder<A>, value1: B, value2: C): Decoder<B | C>;
-  <A, B, C, D>(decoder: Decoder<A>, value1: B, value2: C, value3: D): Decoder<
-    B | C | D
-  >;
-  <A, B, C, D, E>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-  ): Decoder<B | C | D | E>;
-  <A, B, C, D, E, F>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-    value5: F,
-  ): Decoder<B | C | D | E | F>;
-  <A, B, C, D, E, F, G>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-    value5: F,
-    value6: G,
-  ): Decoder<B | C | D | E | F | G>;
-  <A, B, C, D, E, F, G, H>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-    value5: F,
-    value6: G,
-    value7: H,
-  ): Decoder<B | C | D | E | F | G | H>;
-  <A, B, C, D, E, F, G, H, I>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-    value5: F,
-    value6: G,
-    value7: H,
-    value8: I,
-  ): Decoder<B | C | D | E | F | G | H | I>;
-  <A, B, C, D, E, F, G, H, I, J>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-    value5: F,
-    value6: G,
-    value7: H,
-    value8: I,
-    value9: J,
-  ): Decoder<B | C | D | E | F | G | H | I | J>;
-  <A, B, C, D, E, F, G, H, I, J, K>(
-    decoder: Decoder<A>,
-    value1: B,
-    value2: C,
-    value3: D,
-    value4: E,
-    value5: F,
-    value6: G,
-    value7: H,
-    value8: I,
-    value9: J,
-    value10: K,
-  ): Decoder<B | C | D | E | F | G | H | I | J | K>;
-}
+export type Union = <
+  T extends string | number | boolean,
+  Values extends Array<T>
+>(
+  decoder: Decoder<T>,
+  ...values: Values
+) => Decoder<Values[number]>;
 
 export const decodeString = <T>(decoder: Decoder<T>) => async (
   input: string,
@@ -394,7 +126,11 @@ export const maybe = <T>(decoder: Decoder<T>): Decoder<T | undefined> =>
     decoder,
   );
 
-export const union: Union = (decoder: Decoder<any>, ...values: any[]) =>
+// TypeScript does not try to infer the subtype of functions parameters,
+// Therefore a decoder like `union(str, "foo", "bar")` will result in a `Decoder<string>`
+// The only way to prevent this is to provide the generics
+// like `union<string, Array<'foo', 'bar'>>(str, 'foo', 'bar')`
+export const union: Union = (decoder: Decoder<any>, ...values: Array<any>) =>
   compose(
     decoder,
     value => {
@@ -427,9 +163,9 @@ export const field = <T>(
   decoder: Decoder<T>,
 ): Decoder<T> => async (value): Promise<T> => await decoder(value[name]);
 
-export const compose: Composeable = (...decoders: Decoder<any>[]) => async (
-  value: any,
-): Promise<any> => {
+export const compose: Composeable = (
+  ...decoders: Array<Decoder<any>>
+) => async (value: any): Promise<any> => {
   for (const decoder of decoders) {
     await decoder(value);
   }
@@ -438,7 +174,7 @@ export const compose: Composeable = (...decoders: Decoder<any>[]) => async (
 };
 
 export const map: Map = (
-  f: (...value: any[]) => any,
+  f: (...values: Array<any>) => any,
   ...decoders: Array<Decoder<any>>
 ) => async (value: any) =>
   f(...(await Promise.all(decoders.map(decoder => decoder(value)))));
