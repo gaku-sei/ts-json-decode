@@ -165,13 +165,8 @@ export const field = <T>(
 
 export const compose: Composeable = (
   ...decoders: Array<Decoder<any>>
-) => async (value: any): Promise<any> => {
-  for (const decoder of decoders) {
-    await decoder(value);
-  }
-
-  return value;
-};
+) => async (value: any): Promise<any> =>
+  decoders.reduce(async (acc, reducer) => await reducer(await acc), value);
 
 export const map: Map = (
   f: (...values: Array<any>) => any,

@@ -234,6 +234,33 @@ describe("Decoders", () => {
 
         await expect(decodeString(decoder)("null")).resolves.toEqual(null);
       });
+
+      it("should allow decoder sequencing", async () => {
+        const phoneNumberDecoder = map(
+          ({ center, left, right, ...props }) => ({
+            phoneNumber: `${left}-${center}-${right}`,
+            ...props,
+          }),
+          object({ center: str, left: str, right: str }),
+        );
+
+        const decoder = compose(
+          phoneNumberDecoder,
+          object({
+            name: str,
+            phoneNumber: str,
+          }),
+        );
+
+        await expect(
+          decodeString(decoder)(
+            '{"center": "0808", "left": "090", "name": "foobar", "right": "9878"}',
+          ),
+        ).resolves.toEqual({
+          name: "foobar",
+          phoneNumber: "090-0808-9878",
+        });
+      });
     });
 
     describe("map", () => {
