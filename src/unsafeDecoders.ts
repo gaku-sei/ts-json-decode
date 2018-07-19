@@ -1,6 +1,6 @@
 // These decoders are strongly related to the concept of dependent typing
 // https://en.wikipedia.org/wiki/Dependent_type
-// Hopefully, this concept will one arrive in TypeScript
+// Hopefully, this concept will arrive one day in TypeScript
 // https://github.com/Microsoft/TypeScript/pull/21316#issuecomment-360197486
 
 import { Decoder, DecodeError, getAccurateTypeOf } from "./shared";
