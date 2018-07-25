@@ -91,7 +91,9 @@ export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => (
 
       return value;
     } catch (error) {
-      expectations = [...expectations, error.expected];
+      if (error instanceof DecodeError) {
+        expectations = [...expectations, error.expected];
+      }
     }
   }
 
@@ -140,10 +142,14 @@ export const object = <T extends DecoderDict>(
     try {
       decoders[key](value[key]);
     } catch (error) {
-      throw new DecodeError(
-        `${error.expected} at field "${key}"`,
-        error.received,
-      );
+      if (error instanceof DecodeError) {
+        throw new DecodeError(
+          `${error.expected} at field "${key}"`,
+          error.received,
+        );
+      }
+
+      throw error;
     }
   }
 
