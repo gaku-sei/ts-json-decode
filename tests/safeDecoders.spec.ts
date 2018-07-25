@@ -348,11 +348,19 @@ describe("Safe decoders", () => {
           }
         `;
 
+        const wrongInput = `
+          {
+            "foo": "bar",
+            "bar": "42",
+            "baz": [true, false]
+          }
+        `;
+
         const expected = { foo: "bar", bar: 42, baz: [true, false] };
 
-        const received = decodeString(decoder)(input);
+        expect(decodeString(decoder)(input)).toEqual(expected);
 
-        expect(received).toEqual(expected);
+        expect(() => decodeString(decoder)(wrongInput)).toThrow(Error);
       });
 
       it("should parse a simple object according to the given decoders and allow extra attributes", () => {
@@ -371,13 +379,22 @@ describe("Safe decoders", () => {
           }
         `;
 
+        const wrongInput = `
+        {
+          "foo": "bar",
+          "bar": "42",
+          "baz": [true, false],
+          "qux": true
+        }
+      `;
+
         // The value is expected to be present at runtime
         // but won't be accessible at compile time
         const expected = { foo: "bar", bar: 42, baz: [true, false], qux: true };
 
-        const received = decodeString(decoder)(input);
+        expect(decodeString(decoder)(input)).toEqual(expected);
 
-        expect(received).toEqual(expected);
+        expect(() => decodeString(decoder)(wrongInput)).toThrow(Error);
       });
 
       it("should parse a complex object according to the given decoders", () => {

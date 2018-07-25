@@ -9,8 +9,14 @@ export type DecoderValueDict<T extends DecoderDict> = {
 };
 
 export class DecodeError extends Error {
+  public expected!: string;
+  public received!: string;
+
   constructor(expected: string, received: string) {
     super(`Expected ${expected} but got ${received}`);
+
+    this.expected = expected;
+    this.received = received;
   }
 }
 

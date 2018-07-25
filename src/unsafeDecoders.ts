@@ -40,7 +40,7 @@ export const lengthWithin = (
   if (value.length <= minLength || value.length >= maxLength) {
     throw new DecodeError(
       `string of length within ${minLength} and ${maxLength}`,
-      typeof value,
+      value,
     );
   }
 

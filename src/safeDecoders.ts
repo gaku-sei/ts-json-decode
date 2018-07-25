@@ -83,16 +83,20 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
 export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => (
   value: any,
 ) => {
+  let expectations: string[] = [];
+
   for (const decoder of decoders) {
     try {
       decoder(value);
 
       return value;
-    } catch {}
+    } catch (error) {
+      expectations = [...expectations, error.expected];
+    }
   }
 
   throw new DecodeError(
-    "one of the provided decoders",
+    `one of "${expectations.join('" or "')}"`,
     getAccurateTypeOf(value),
   );
 };
@@ -118,7 +122,7 @@ export const union: Union = (decoder: Decoder<any>, ...values: Array<any>) =>
     decoder,
     value => {
       if (!values.includes(value)) {
-        throw new DecodeError(`${values.join(" or ")}`, value);
+        throw new DecodeError(`one of "${values.join('" or "')}"`, value);
       }
 
       return value;
@@ -133,7 +137,14 @@ export const object = <T extends DecoderDict>(
   }
 
   for (const key in decoders) {
-    decoders[key](value[key]);
+    try {
+      decoders[key](value[key]);
+    } catch (error) {
+      throw new DecodeError(
+        `${error.expected} at field "${key}"`,
+        error.received,
+      );
+    }
   }
 
   return value;
