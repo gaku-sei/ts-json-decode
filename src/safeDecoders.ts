@@ -1,4 +1,10 @@
-import { Decoder, DecodeError, DecoderDict, DecoderValueDict } from "./shared";
+import {
+  Decoder,
+  DecodeError,
+  DecoderDict,
+  DecoderValueDict,
+  getAccurateTypeOf,
+} from "./shared";
 
 export type Composeable = <Decoders extends Array<Decoder<any>>>(
   ...decoders: Decoders
@@ -32,7 +38,7 @@ const isPlainObject = (value: any): boolean => {
 
 export const str: Decoder<string> = value => {
   if (typeof value !== "string") {
-    throw new DecodeError("string", typeof value);
+    throw new DecodeError("string", getAccurateTypeOf(value));
   }
 
   return value;
@@ -40,7 +46,7 @@ export const str: Decoder<string> = value => {
 
 export const num: Decoder<number> = value => {
   if (typeof value !== "number") {
-    throw new DecodeError("number", typeof value);
+    throw new DecodeError("number", getAccurateTypeOf(value));
   }
 
   return value;
@@ -48,7 +54,7 @@ export const num: Decoder<number> = value => {
 
 export const bool: Decoder<boolean> = value => {
   if (typeof value !== "boolean") {
-    throw new DecodeError("boolean", typeof value);
+    throw new DecodeError("boolean", getAccurateTypeOf(value));
   }
 
   return value;
@@ -56,7 +62,7 @@ export const bool: Decoder<boolean> = value => {
 
 export const nil: Decoder<null> = value => {
   if (value !== null) {
-    throw new DecodeError("null", typeof value);
+    throw new DecodeError("null", getAccurateTypeOf(value));
   }
 
   return value;
@@ -66,7 +72,7 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
   values,
 ): Array<T> => {
   if (!Array.isArray(values)) {
-    throw new DecodeError("array", typeof values);
+    throw new DecodeError("array", getAccurateTypeOf(values));
   }
 
   values.forEach(decoder);
@@ -77,15 +83,24 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
 export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => (
   value: any,
 ) => {
+  let expectations: string[] = [];
+
   for (const decoder of decoders) {
     try {
       decoder(value);
 
       return value;
-    } catch {}
+    } catch (error) {
+      if (error instanceof DecodeError) {
+        expectations = [...expectations, error.expected];
+      }
+    }
   }
 
-  throw new DecodeError("one of the provided decoders", typeof value);
+  throw new DecodeError(
+    `one of "${expectations.join('" or "')}"`,
+    getAccurateTypeOf(value),
+  );
 };
 
 export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
@@ -94,7 +109,7 @@ export const nullable = <T>(decoder: Decoder<T>): Decoder<T | null> =>
 export const maybe = <T>(decoder: Decoder<T>): Decoder<T | undefined> =>
   oneOf(value => {
     if (value !== undefined) {
-      throw new DecodeError("undefined", typeof value);
+      throw new DecodeError("undefined", getAccurateTypeOf(value));
     }
 
     return value;
@@ -109,7 +124,7 @@ export const union: Union = (decoder: Decoder<any>, ...values: Array<any>) =>
     decoder,
     value => {
       if (!values.includes(value)) {
-        throw new DecodeError(`${values.join(" or ")}`, value);
+        throw new DecodeError(`one of "${values.join('" or "')}"`, value);
       }
 
       return value;
@@ -120,11 +135,22 @@ export const object = <T extends DecoderDict>(
   decoders: T,
 ): Decoder<DecoderValueDict<T>> => (value): DecoderValueDict<T> => {
   if (!isPlainObject(value)) {
-    throw new DecodeError("object", typeof value);
+    throw new DecodeError("object", getAccurateTypeOf(value));
   }
 
   for (const key in decoders) {
-    decoders[key](value[key]);
+    try {
+      decoders[key](value[key]);
+    } catch (error) {
+      if (error instanceof DecodeError) {
+        throw new DecodeError(
+          `${error.expected} at field "${key}"`,
+          error.received,
+        );
+      }
+
+      throw error;
+    }
   }
 
   return value;
