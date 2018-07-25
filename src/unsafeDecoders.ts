@@ -3,11 +3,11 @@
 // Hopefully, this concept will one arrive in TypeScript
 // https://github.com/Microsoft/TypeScript/pull/21316#issuecomment-360197486
 
-import { Decoder, DecodeError } from "./shared";
+import { Decoder, DecodeError, getAccurateTypeOf } from "./shared";
 
 export const minLength = (length: number): Decoder<string> => value => {
   if (typeof value !== "string") {
-    throw new DecodeError("string", typeof value);
+    throw new DecodeError("string", getAccurateTypeOf(value));
   }
 
   if (value.length <= length) {
@@ -19,7 +19,7 @@ export const minLength = (length: number): Decoder<string> => value => {
 
 export const maxLength = (length: number): Decoder<string> => value => {
   if (typeof value !== "string") {
-    throw new DecodeError("string", typeof value);
+    throw new DecodeError("string", getAccurateTypeOf(value));
   }
 
   if (value.length >= length) {
@@ -34,7 +34,7 @@ export const lengthWithin = (
   maxLength: number,
 ): Decoder<string> => value => {
   if (typeof value !== "string") {
-    throw new DecodeError("string", typeof value);
+    throw new DecodeError("string", getAccurateTypeOf(value));
   }
 
   if (value.length <= minLength || value.length >= maxLength) {
@@ -49,7 +49,7 @@ export const lengthWithin = (
 
 export const min = (minValue: number): Decoder<number> => value => {
   if (typeof value !== "number") {
-    throw new DecodeError("number", typeof value);
+    throw new DecodeError("number", getAccurateTypeOf(value));
   }
 
   if (value <= minValue) {
@@ -64,7 +64,7 @@ export const min = (minValue: number): Decoder<number> => value => {
 
 export const max = (maxValue: number): Decoder<number> => value => {
   if (typeof value !== "number") {
-    throw new DecodeError("number", typeof value);
+    throw new DecodeError("number", getAccurateTypeOf(value));
   }
 
   if (value >= maxValue) {
@@ -82,7 +82,7 @@ export const within = (
   maxValue: number,
 ): Decoder<number> => value => {
   if (typeof value !== "number") {
-    throw new DecodeError("number", typeof value);
+    throw new DecodeError("number", getAccurateTypeOf(value));
   }
 
   if (value <= minValue || value >= maxValue) {
@@ -105,7 +105,7 @@ export const format = (pattern: RegExp): Decoder<string> => value => {
 
 export const notEmpty: Decoder<string> = value => {
   if (typeof value !== "string") {
-    throw new DecodeError("string", typeof value);
+    throw new DecodeError("string", getAccurateTypeOf(value));
   }
 
   if (value.length === 0) {

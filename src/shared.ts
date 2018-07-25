@@ -13,3 +13,15 @@ export class DecodeError extends Error {
     super(`Expected ${expected} but got ${received}`);
   }
 }
+
+export function getAccurateTypeOf(x: any): string {
+  const rawType: string = Object.prototype.toString.call(x);
+
+  const matches = rawType.toLowerCase().match(/(\w+)/g);
+
+  if (!matches || matches.length < 2) {
+    return typeof x;
+  }
+
+  return matches[1];
+}
