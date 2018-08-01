@@ -1,6 +1,6 @@
 {
   "name": "ts-json-decode",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A library ensuring type safety when decoding JSON data inspired by Elm",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
