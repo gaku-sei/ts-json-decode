@@ -15,6 +15,8 @@ export class DecodeError extends Error {
   constructor(expected: string, received: string) {
     super(`Expected ${expected} but got ${received}`);
 
+    Object.setPrototypeOf(this, DecodeError.prototype);
+
     this.expected = expected;
     this.received = received;
   }

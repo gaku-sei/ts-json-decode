@@ -10,6 +10,7 @@ import {
   notEmpty,
   within,
 } from "../src/unsafeDecoders";
+import { DecodeError } from "../src/shared";
 
 describe("Unsafe decoders", () => {
   describe("decodeString", () => {
@@ -20,16 +21,16 @@ describe("Unsafe decoders", () => {
         expect(decodeString(decoder)('"foo@bar.com"')).toEqual("foo@bar.com");
         expect(decodeString(decoder, '"foo@bar.com"')).toEqual("foo@bar.com");
 
-        expect(() => decodeString(decoder)('"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder)("42")).toThrow(Error);
-        expect(() => decodeString(decoder)("true")).toThrow(Error);
-        expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder)("null")).toThrow(Error);
-        expect(() => decodeString(decoder, '"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder, "42")).toThrow(Error);
-        expect(() => decodeString(decoder, "true")).toThrow(Error);
-        expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder, "null")).toThrow(Error);
+        expect(() => decodeString(decoder)('"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("42")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "42")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
       });
     });
 
@@ -38,16 +39,16 @@ describe("Unsafe decoders", () => {
         expect(decodeString(notEmpty)('"foo"')).toEqual("foo");
         expect(decodeString(notEmpty, '"foo"')).toEqual("foo");
 
-        expect(() => decodeString(notEmpty)('""')).toThrow(Error);
-        expect(() => decodeString(notEmpty)("42")).toThrow(Error);
-        expect(() => decodeString(notEmpty)("true")).toThrow(Error);
-        expect(() => decodeString(notEmpty)('["foo"]')).toThrow(Error);
-        expect(() => decodeString(notEmpty)("null")).toThrow(Error);
-        expect(() => decodeString(notEmpty, '""')).toThrow(Error);
-        expect(() => decodeString(notEmpty, "42")).toThrow(Error);
-        expect(() => decodeString(notEmpty, "true")).toThrow(Error);
-        expect(() => decodeString(notEmpty, '["foo"]')).toThrow(Error);
-        expect(() => decodeString(notEmpty, "null")).toThrow(Error);
+        expect(() => decodeString(notEmpty)('""')).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty)("42")).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty)("true")).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty)('["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty)("null")).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty, '""')).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty, "42")).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty, "true")).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty, '["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(notEmpty, "null")).toThrow(DecodeError);
       });
     });
 
@@ -60,18 +61,18 @@ describe("Unsafe decoders", () => {
         expect(decodeString(decoder, "9")).toEqual(9);
         expect(decodeString(decoder, "63")).toEqual(63);
 
-        expect(() => decodeString(decoder)("8")).toThrow(Error);
-        expect(() => decodeString(decoder)("64")).toThrow(Error);
-        expect(() => decodeString(decoder)('"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder)("true")).toThrow(Error);
-        expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder)("null")).toThrow(Error);
-        expect(() => decodeString(decoder, "8")).toThrow(Error);
-        expect(() => decodeString(decoder, "64")).toThrow(Error);
-        expect(() => decodeString(decoder, '"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder, "true")).toThrow(Error);
-        expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder, "null")).toThrow(Error);
+        expect(() => decodeString(decoder)("8")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("64")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "8")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "64")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
       });
     });
 
@@ -84,16 +85,16 @@ describe("Unsafe decoders", () => {
         expect(decodeString(decoder, "9")).toEqual(9);
         expect(decodeString(decoder, "10000")).toEqual(10000);
 
-        expect(() => decodeString(decoder)("8")).toThrow(Error);
-        expect(() => decodeString(decoder)('"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder)("true")).toThrow(Error);
-        expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder)("null")).toThrow(Error);
-        expect(() => decodeString(decoder, "8")).toThrow(Error);
-        expect(() => decodeString(decoder, '"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder, "true")).toThrow(Error);
-        expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder, "null")).toThrow(Error);
+        expect(() => decodeString(decoder)("8")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "8")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
       });
     });
 
@@ -106,16 +107,16 @@ describe("Unsafe decoders", () => {
         expect(decodeString(decoder, "63")).toEqual(63);
         expect(decodeString(decoder, "-10000")).toEqual(-10000);
 
-        expect(() => decodeString(decoder)("64")).toThrow(Error);
-        expect(() => decodeString(decoder)('"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder)("true")).toThrow(Error);
-        expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder)("null")).toThrow(Error);
-        expect(() => decodeString(decoder, "64")).toThrow(Error);
-        expect(() => decodeString(decoder, '"foo"')).toThrow(Error);
-        expect(() => decodeString(decoder, "true")).toThrow(Error);
-        expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-        expect(() => decodeString(decoder, "null")).toThrow(Error);
+        expect(() => decodeString(decoder)("64")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "64")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+        expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+        expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
       });
     });
   });
@@ -127,22 +128,26 @@ describe("Unsafe decoders", () => {
       expect(decodeString(decoder)('"foo"')).toEqual("foo");
       expect(decodeString(decoder, '"foo"')).toEqual("foo");
 
-      expect(() => decodeString(decoder)('""')).toThrow(Error);
-      expect(() => decodeString(decoder)('"fo"')).toThrow(Error);
-      expect(() => decodeString(decoder)('"fooo"')).toThrow(Error);
-      expect(() => decodeString(decoder)('"super foobar"')).toThrow(Error);
-      expect(() => decodeString(decoder)("8")).toThrow(Error);
-      expect(() => decodeString(decoder)("true")).toThrow(Error);
-      expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-      expect(() => decodeString(decoder)("null")).toThrow(Error);
-      expect(() => decodeString(decoder, '""')).toThrow(Error);
-      expect(() => decodeString(decoder, '"fo"')).toThrow(Error);
-      expect(() => decodeString(decoder, '"fooo"')).toThrow(Error);
-      expect(() => decodeString(decoder, '"super foobar"')).toThrow(Error);
-      expect(() => decodeString(decoder, "8")).toThrow(Error);
-      expect(() => decodeString(decoder, "true")).toThrow(Error);
-      expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-      expect(() => decodeString(decoder, "null")).toThrow(Error);
+      expect(() => decodeString(decoder)('""')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('"fo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('"fooo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('"super foobar"')).toThrow(
+        DecodeError,
+      );
+      expect(() => decodeString(decoder)("8")).toThrow(DecodeError);
+      expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '""')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '"fo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '"fooo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '"super foobar"')).toThrow(
+        DecodeError,
+      );
+      expect(() => decodeString(decoder, "8")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
     });
   });
 
@@ -153,16 +158,16 @@ describe("Unsafe decoders", () => {
       expect(decodeString(decoder)('"fooo"')).toEqual("fooo");
       expect(decodeString(decoder, '"fooo"')).toEqual("fooo");
 
-      expect(() => decodeString(decoder)("8")).toThrow(Error);
-      expect(() => decodeString(decoder)('"foo"')).toThrow(Error);
-      expect(() => decodeString(decoder)("true")).toThrow(Error);
-      expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-      expect(() => decodeString(decoder)("null")).toThrow(Error);
-      expect(() => decodeString(decoder, "8")).toThrow(Error);
-      expect(() => decodeString(decoder, '"foo"')).toThrow(Error);
-      expect(() => decodeString(decoder, "true")).toThrow(Error);
-      expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-      expect(() => decodeString(decoder, "null")).toThrow(Error);
+      expect(() => decodeString(decoder)("8")).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('"foo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "8")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
     });
   });
 
@@ -173,16 +178,16 @@ describe("Unsafe decoders", () => {
       expect(decodeString(decoder)('"fo"')).toEqual("fo");
       expect(decodeString(decoder, '"fo"')).toEqual("fo");
 
-      expect(() => decodeString(decoder)("8")).toThrow(Error);
-      expect(() => decodeString(decoder)('"foo"')).toThrow(Error);
-      expect(() => decodeString(decoder)("true")).toThrow(Error);
-      expect(() => decodeString(decoder)('["foo"]')).toThrow(Error);
-      expect(() => decodeString(decoder)("null")).toThrow(Error);
-      expect(() => decodeString(decoder, "8")).toThrow(Error);
-      expect(() => decodeString(decoder, '"foo"')).toThrow(Error);
-      expect(() => decodeString(decoder, "true")).toThrow(Error);
-      expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
-      expect(() => decodeString(decoder, "null")).toThrow(Error);
+      expect(() => decodeString(decoder)("8")).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('"foo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)("true")).toThrow(DecodeError);
+      expect(() => decodeString(decoder)('["foo"]')).toThrow(DecodeError);
+      expect(() => decodeString(decoder)("null")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "8")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "true")).toThrow(DecodeError);
+      expect(() => decodeString(decoder, '["foo"]')).toThrow(DecodeError);
+      expect(() => decodeString(decoder, "null")).toThrow(DecodeError);
     });
   });
 
@@ -197,16 +202,16 @@ describe("Unsafe decoders", () => {
       expect(decodeString(int, "8")).toEqual(8);
       expect(decodeString(int, "5.0")).toEqual(5.0);
 
-      expect(() => decodeString(int)("8.1")).toThrow(Error);
-      expect(() => decodeString(int)('"foo"')).toThrow(Error);
-      expect(() => decodeString(int)("true")).toThrow(Error);
-      expect(() => decodeString(int)("[1]")).toThrow(Error);
-      expect(() => decodeString(int)("null")).toThrow(Error);
-      expect(() => decodeString(int, "8.1")).toThrow(Error);
-      expect(() => decodeString(int, '"foo"')).toThrow(Error);
-      expect(() => decodeString(int, "true")).toThrow(Error);
-      expect(() => decodeString(int, "[1]")).toThrow(Error);
-      expect(() => decodeString(int, "null")).toThrow(Error);
+      expect(() => decodeString(int)("8.1")).toThrow(DecodeError);
+      expect(() => decodeString(int)('"foo"')).toThrow(DecodeError);
+      expect(() => decodeString(int)("true")).toThrow(DecodeError);
+      expect(() => decodeString(int)("[1]")).toThrow(DecodeError);
+      expect(() => decodeString(int)("null")).toThrow(DecodeError);
+      expect(() => decodeString(int, "8.1")).toThrow(DecodeError);
+      expect(() => decodeString(int, '"foo"')).toThrow(DecodeError);
+      expect(() => decodeString(int, "true")).toThrow(DecodeError);
+      expect(() => decodeString(int, "[1]")).toThrow(DecodeError);
+      expect(() => decodeString(int, "null")).toThrow(DecodeError);
     });
   });
 });
