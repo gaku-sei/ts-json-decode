@@ -15,8 +15,22 @@ export class DecodeError extends Error {
   constructor(expected: string, received: string) {
     super(`Expected ${expected} but got ${received}`);
 
+    Object.setPrototypeOf(this, DecodeError.prototype);
+
     this.expected = expected;
     this.received = received;
+  }
+}
+
+export class ParseError extends Error {
+  public input!: string;
+
+  constructor(input: string) {
+    super(`Could not parse input: ${input}`);
+
+    Object.setPrototypeOf(this, ParseError.prototype);
+
+    this.input = input;
   }
 }
 
