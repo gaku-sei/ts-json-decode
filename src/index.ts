@@ -29,7 +29,7 @@ export function decodeString<T>(decoder: Decoder<T>, input?: string) {
 export function decodeValue<T>(decoder: Decoder<T>): (input: any) => T;
 export function decodeValue<T>(decoder: Decoder<T>, input: any): T;
 export function decodeValue<T>(decoder: Decoder<T>, input?: any) {
-  if (typeof input !== "undefined") {
+  if (arguments.length === 2) {
     return decoder(input);
   }
 
