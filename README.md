@@ -63,7 +63,7 @@ If something goes wrong, for instance if `foo` is missing, or if `bar` is a `str
 
 ## Documentation
 
-A full documentation can be found [here](http://gaku-sei.github.io/ts-json-decode).
+A full documentation can be found [here](http://gaku-sei.github.io/ts-json-decode/docs).
 
 ## API
 
