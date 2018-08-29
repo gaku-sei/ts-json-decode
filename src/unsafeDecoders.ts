@@ -114,3 +114,15 @@ export const notEmpty: Decoder<string> = value => {
 
   return value;
 };
+
+export const int: Decoder<number> = value => {
+  if (typeof value !== "number") {
+    throw new DecodeError("number", getAccurateTypeOf(value));
+  }
+
+  if (!isFinite(value) || Math.floor(value) !== value) {
+    throw new DecodeError("integer", value.toString());
+  }
+
+  return value;
+};

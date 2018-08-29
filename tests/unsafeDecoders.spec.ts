@@ -1,6 +1,7 @@
 import { decodeString } from "../src/index";
 import {
   format,
+  int,
   lengthWithin,
   max,
   maxLength,
@@ -182,6 +183,30 @@ describe("Unsafe decoders", () => {
       expect(() => decodeString(decoder, "true")).toThrow(Error);
       expect(() => decodeString(decoder, '["foo"]')).toThrow(Error);
       expect(() => decodeString(decoder, "null")).toThrow(Error);
+    });
+  });
+
+  describe("maxLength", () => {
+    it("should parse integers and reject other values", () => {
+      expect(decodeString(int)("-100")).toEqual(-100);
+      expect(decodeString(int)("0")).toEqual(0);
+      expect(decodeString(int)("8")).toEqual(8);
+      expect(decodeString(int)("5.0")).toEqual(5.0);
+      expect(decodeString(int, "-100")).toEqual(-100);
+      expect(decodeString(int, "0")).toEqual(0);
+      expect(decodeString(int, "8")).toEqual(8);
+      expect(decodeString(int, "5.0")).toEqual(5.0);
+
+      expect(() => decodeString(int)("8.1")).toThrow(Error);
+      expect(() => decodeString(int)('"foo"')).toThrow(Error);
+      expect(() => decodeString(int)("true")).toThrow(Error);
+      expect(() => decodeString(int)("[1]")).toThrow(Error);
+      expect(() => decodeString(int)("null")).toThrow(Error);
+      expect(() => decodeString(int, "8.1")).toThrow(Error);
+      expect(() => decodeString(int, '"foo"')).toThrow(Error);
+      expect(() => decodeString(int, "true")).toThrow(Error);
+      expect(() => decodeString(int, "[1]")).toThrow(Error);
+      expect(() => decodeString(int, "null")).toThrow(Error);
     });
   });
 });
