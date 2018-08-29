@@ -6,7 +6,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "rm -fr lib && tsc",
-    "test": "tsc --noEmit && jest"
+    "test": "tsc --noEmit && jest",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "typescript",
