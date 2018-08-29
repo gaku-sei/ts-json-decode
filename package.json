@@ -7,6 +7,7 @@
   "scripts": {
     "build": "rm -fr lib && tsc",
     "test": "tsc --noEmit && jest",
+    "doc": "rm -fr docs && typedoc --out docs --module commonjs --hideGenerator --readme none",
     "prepublish": "npm run build"
   },
   "keywords": [
