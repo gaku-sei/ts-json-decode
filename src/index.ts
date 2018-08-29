@@ -1,4 +1,4 @@
-import { Decoder } from "./shared";
+import { Decoder, ParseError } from "./shared";
 
 export * from "./safeDecoders";
 export * from "./shared";
@@ -13,7 +13,7 @@ export function decodeString<T>(decoder: Decoder<T>, input?: string) {
     try {
       json = JSON.parse(input);
     } catch {
-      throw new Error(`Could not parse input: ${input}`);
+      throw new ParseError(input);
     }
 
     return decoder(json);

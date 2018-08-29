@@ -14,7 +14,7 @@ import {
   str,
   union,
 } from "../src/safeDecoders";
-import { DecodeError } from "../src/shared";
+import { DecodeError, ParseError } from "../src/shared";
 
 describe("Safe decoders", () => {
   describe("decodeString", () => {
@@ -23,12 +23,12 @@ describe("Safe decoders", () => {
         expect(decodeString(str)('"foo"')).toEqual("foo");
         expect(decodeString(str, '"foo"')).toEqual("foo");
 
-        expect(() => decodeString(str)("foo")).toThrow(DecodeError);
+        expect(() => decodeString(str)("foo")).toThrow(ParseError);
         expect(() => decodeString(str)("42")).toThrow(DecodeError);
         expect(() => decodeString(str)("true")).toThrow(DecodeError);
         expect(() => decodeString(str)('["foo"]')).toThrow(DecodeError);
         expect(() => decodeString(str)("null")).toThrow(DecodeError);
-        expect(() => decodeString(str, "foo")).toThrow(DecodeError);
+        expect(() => decodeString(str, "foo")).toThrow(ParseError);
         expect(() => decodeString(str, "42")).toThrow(DecodeError);
         expect(() => decodeString(str, "true")).toThrow(DecodeError);
         expect(() => decodeString(str, '["foo"]')).toThrow(DecodeError);
@@ -170,11 +170,11 @@ describe("Safe decoders", () => {
         expect(decodeString(nullable(str), '"foo"')).toEqual("foo");
 
         expect(() => decodeString(nullable(str))("undefined")).toThrow(
-          DecodeError,
+          ParseError,
         );
         expect(() => decodeString(nullable(str))("42")).toThrow(DecodeError);
         expect(() => decodeString(nullable(str), "undefined")).toThrow(
-          DecodeError,
+          ParseError,
         );
         expect(() => decodeString(nullable(str), "42")).toThrow(DecodeError);
       });

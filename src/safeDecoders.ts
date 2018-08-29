@@ -158,7 +158,16 @@ export const object = <T extends DecoderDict>(
 
 export const field = <T>(name: string, decoder: Decoder<T>): Decoder<T> => (
   value,
-): T => decoder(value[name]);
+): T => {
+  if (!(name in value)) {
+    throw new DecodeError(
+      `${name} to be an existing attribute of ${JSON.stringify(value)}`,
+      "undefined",
+    );
+  }
+
+  return decoder(value[name]);
+};
 
 export const compose: Composeable = (...decoders: Array<Decoder<any>>) => (
   value: any,

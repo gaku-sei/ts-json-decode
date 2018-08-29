@@ -22,6 +22,18 @@ export class DecodeError extends Error {
   }
 }
 
+export class ParseError extends Error {
+  public input!: string;
+
+  constructor(input: string) {
+    super(`Could not parse input: ${input}`);
+
+    Object.setPrototypeOf(this, ParseError.prototype);
+
+    this.input = input;
+  }
+}
+
 export function getAccurateTypeOf(x: any): string {
   const rawType: string = Object.prototype.toString.call(x);
 
