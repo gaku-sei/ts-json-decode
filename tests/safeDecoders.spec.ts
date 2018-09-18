@@ -245,7 +245,7 @@ describe("Safe decoders", () => {
         expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
       });
 
-      it("should handle as many decoders as needed (up to 10)", () => {
+      it("should handle as many decoders as needed", () => {
         const decoder = compose(
           nil,
           nullable(str),
@@ -341,7 +341,7 @@ describe("Safe decoders", () => {
         expect(() => decodeString(decoder, '"foo"')).toThrow(DecodeError);
       });
 
-      it("should handle as many decoders as needed (up to 10)", () => {
+      it("should handle as many decoders as needed", () => {
         const decoder = map(
           (x, y, z) => ({ x, y, z }),
           nil,
