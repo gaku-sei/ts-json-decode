@@ -11,11 +11,12 @@ export type Composeable = <Decoders extends Array<Decoder<any>>>(
 ) => Decoder<Decoders[number] extends Decoder<infer T> ? T : never>;
 
 export type Map = <Decoders extends Array<Decoder<any>>, T>(
-  // TypeScript is not able to fully understand the types of values yet.
-  // For example a in a decoder like `map((a, b) => ..., str, num);`,
-  // `a` and `b` will have type `string | number` except of `a` being `string` and `b` being `number`
   f: (
-    ...values: Array<Decoders[number] extends Decoder<infer U> ? U : never>
+    ...values: {
+      [key in keyof Decoders]: Decoders[key] extends Decoder<infer U>
+        ? U
+        : never
+    }
   ) => T,
   ...decoders: Decoders
 ) => Decoder<T>;
@@ -174,6 +175,6 @@ export const compose: Composeable = (...decoders: Array<Decoder<any>>) => (
 ) => decoders.reduce((acc, reducer) => reducer(acc), value);
 
 export const map: Map = (
-  f: (...values: Array<any>) => any,
+  f: (...values: any) => any,
   ...decoders: Array<Decoder<any>>
 ) => (value: any) => f(...decoders.map(decoder => decoder(value)));
