@@ -14,7 +14,7 @@ import {
   str,
   union,
 } from "../src/safeDecoders";
-import { DecodeError, ParseError } from "../src/shared";
+import { DecodeError, ParseError, Decoder } from "../src/shared";
 
 describe("Safe decoders", () => {
   describe("decodeString", () => {
@@ -272,6 +272,53 @@ describe("Safe decoders", () => {
 
         expect(decodeString(decoder)("null")).toEqual(null);
         expect(decodeString(decoder, "null")).toEqual(null);
+      });
+
+      it("should allow object composition", () => {
+        interface FooBar {
+          foo: boolean;
+          bar: string;
+        }
+
+        interface FooBarBaz extends FooBar {
+          baz: number;
+        }
+
+        const entry: FooBarBaz = {
+          foo: true,
+          bar: "foobar",
+          baz: 42,
+        };
+
+        const decoder: Decoder<FooBarBaz> = compose(
+          object({ foo: bool, bar: str }),
+          object({ baz: num }),
+        );
+
+        expect(() =>
+          decodeValue(decoder, { foo: true, bar: "foobar" }),
+        ).toThrow(DecodeError);
+        expect(() =>
+          decodeValue(decoder)({ foo: true, bar: "foobar" }),
+        ).toThrow(DecodeError);
+        expect(() =>
+          decodeString(decoder, JSON.stringify({ foo: true, bar: "foobar" })),
+        ).toThrow(DecodeError);
+        expect(() =>
+          decodeString(decoder)(JSON.stringify({ foo: true, bar: "foobar" })),
+        ).toThrow(DecodeError);
+        expect(() => decodeValue(decoder, { baz: 42 })).toThrow(DecodeError);
+        expect(() => decodeValue(decoder)({ baz: 42 })).toThrow(DecodeError);
+        expect(() =>
+          decodeString(decoder, JSON.stringify({ baz: 42 })),
+        ).toThrow(DecodeError);
+        expect(() =>
+          decodeString(decoder)(JSON.stringify({ baz: 42 })),
+        ).toThrow(DecodeError);
+        expect(decodeValue(decoder)(entry)).toEqual(entry);
+        expect(decodeValue(decoder, entry)).toEqual(entry);
+        expect(decodeString(decoder)(JSON.stringify(entry))).toEqual(entry);
+        expect(decodeString(decoder, JSON.stringify(entry))).toEqual(entry);
       });
 
       it("should allow decoder sequencing", () => {

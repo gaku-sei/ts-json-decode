@@ -6,9 +6,77 @@ import {
   getAccurateTypeOf,
 } from "./shared";
 
-export type Composeable = <Decoders extends Array<Decoder<any>>>(
-  ...decoders: Decoders
-) => Decoder<Decoders[number] extends Decoder<infer T> ? T : never>;
+export interface Composeable {
+  <A, B>(decoder1: Decoder<A>, decoder2: Decoder<B>): Decoder<A & B>;
+  <A, B, C>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+  ): Decoder<A & B & C>;
+  <A, B, C, D>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+  ): Decoder<A & B & C & D>;
+  <A, B, C, D, E>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+  ): Decoder<A & B & C & D & E>;
+  <A, B, C, D, E, F>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder: Decoder<F>,
+  ): Decoder<A & B & C & D & E & F>;
+  <A, B, C, D, E, F, G>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+  ): Decoder<A & B & C & D & E & F & G>;
+  <A, B, C, D, E, F, G, H>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+  ): Decoder<A & B & C & D & E & F & G & H>;
+  <A, B, C, D, E, F, G, H, I>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+  ): Decoder<A & B & C & D & E & F & G & H & I>;
+  <A, B, C, D, E, F, G, H, I, J>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+    decoder10: Decoder<J>,
+  ): Decoder<A & B & C & D & E & F & G & H & I & J>;
+}
 
 export type Map = <Decoders extends Array<Decoder<any>>, T>(
   f: (
