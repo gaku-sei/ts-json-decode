@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [0.4.2] - 2018-12-04
+
+### Changed
+
+- `compose` typing is less flexible but more accurate
+
 ## [0.4.1] - 2018-11-13
 
 ### Fixed
