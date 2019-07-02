@@ -464,7 +464,7 @@ describe("Safe decoders", () => {
 
     describe("union", () => {
       it("should parse a simple union of two simple values", () => {
-        const decoder = union<string, Array<"foo" | "bar">>(str, "foo", "bar");
+        const decoder = union(str, "foo", "bar");
 
         expect(decodeString(decoder)('"foo"')).toEqual("foo");
         expect(decodeString(decoder)('"bar"')).toEqual("bar");
@@ -480,10 +480,7 @@ describe("Safe decoders", () => {
       });
 
       it("should parse a simple union of ten simple values", () => {
-        const decoder = union<
-          number,
-          Array<0 | 1 | 2 | 3 | 5 | 8 | 13 | 20 | 40 | 100>
-        >(num, 0, 1, 2, 3, 5, 8, 13, 20, 40, 100);
+        const decoder = union(num, 0, 1, 2, 3, 5, 8, 13, 20, 40, 100);
 
         expect(decodeString(decoder)("0")).toEqual(0);
         expect(decodeString(decoder)("1")).toEqual(1);
