@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Changed
+
+- Global dependencies update which can lead to some breaking changes
+
+### Fixed
+
+- `oneOf` typings are fixed
+- `union` now works as expected without generic parameters
+
 ## [0.4.2] - 2018-12-04
 
 ### Changed

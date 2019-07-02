@@ -78,6 +78,78 @@ export interface Composeable {
   ): Decoder<A & B & C & D & E & F & G & H & I & J>;
 }
 
+export interface OneOf {
+  <A, B>(decoder1: Decoder<A>, decoder2: Decoder<B>): Decoder<A | B>;
+  <A, B, C>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+  ): Decoder<A | B | C>;
+  <A, B, C, D>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+  ): Decoder<A | B | C | D>;
+  <A, B, C, D, E>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+  ): Decoder<A | B | C | D | E>;
+  <A, B, C, D, E, F>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder: Decoder<F>,
+  ): Decoder<A | B | C | D | E | F>;
+  <A, B, C, D, E, F, G>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+  ): Decoder<A | B | C | D | E | F | G>;
+  <A, B, C, D, E, F, G, H>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+  ): Decoder<A | B | C | D | E | F | G | H>;
+  <A, B, C, D, E, F, G, H, I>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+  ): Decoder<A | B | C | D | E | F | G | H | I>;
+  <A, B, C, D, E, F, G, H, I, J>(
+    decoder1: Decoder<A>,
+    decoder2: Decoder<B>,
+    decoder3: Decoder<C>,
+    decoder4: Decoder<D>,
+    decoder5: Decoder<E>,
+    decoder6: Decoder<F>,
+    decoder7: Decoder<G>,
+    decoder8: Decoder<H>,
+    decoder9: Decoder<I>,
+    decoder10: Decoder<J>,
+  ): Decoder<A | B | C | D | E | F | G | H | I | J>;
+}
+
 export type Map = <Decoders extends Array<Decoder<any>>, T>(
   f: (
     ...values: {
@@ -149,7 +221,7 @@ export const array = <T>(decoder: Decoder<T>): Decoder<Array<T>> => (
   return values;
 };
 
-export const oneOf: Composeable = (...decoders: Array<Decoder<any>>) => (
+export const oneOf: OneOf = (...decoders: Array<Decoder<any>>) => (
   value: any,
 ) => {
   let expectations: string[] = [];
@@ -184,7 +256,7 @@ export const maybe = <T>(decoder: Decoder<T>): Decoder<T | undefined> =>
     return value;
   }, decoder);
 
-// TypeScript does not try to infer the subtype of functions parameters,
+// Lower versions of TypeScript don't try to infer the subtype of functions parameters,
 // Therefore a decoder like `union(str, "foo", "bar")` will result in a `Decoder<string>`
 // The only way to prevent this is to provide the generics
 // like `union<string, Array<'foo', 'bar'>>(str, 'foo', 'bar')`
