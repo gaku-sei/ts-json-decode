@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.5.0] - 2019-07-02
+
 ### Changed
 
 - Global dependencies update which can lead to some breaking changes
