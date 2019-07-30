@@ -34,14 +34,23 @@ export class ParseError extends Error {
   }
 }
 
-export function getAccurateTypeOf(x: any): string {
-  const rawType: string = Object.prototype.toString.call(x);
+export function getAccurateTypeOf(value: any): string {
+  const rawType: string = Object.prototype.toString.call(value);
 
   const matches = rawType.toLowerCase().match(/(\w+)/g);
 
   if (!matches || matches.length < 2) {
-    return typeof x;
+    return typeof value;
   }
 
   return matches[1];
+}
+
+// "Safe" alternative to the hasOwnProperty method
+export function hasOwnProperty(value: any, key: string): boolean {
+  try {
+    return Object.prototype.hasOwnProperty.call(value, key);
+  } catch {
+    return false;
+  }
 }

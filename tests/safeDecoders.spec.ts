@@ -612,6 +612,28 @@ describe("Safe decoders", () => {
         expect(decodeString(decoder)(input)).toEqual(expected);
         expect(decodeString(decoder, input)).toEqual(expected);
       });
+
+      it("should support transformers (like map)", () => {
+        const decoder = object({
+          foo: map(({ length }) => length, str),
+          bar: str,
+        });
+
+        const input = `
+          {
+            "foo": "bar",
+            "bar": "baz"
+          }
+        `;
+
+        const expected = {
+          foo: 3,
+          bar: "baz",
+        };
+
+        expect(decodeString(decoder)(input)).toEqual(expected);
+        expect(decodeString(decoder, input)).toEqual(expected);
+      });
     });
 
     describe("record", () => {
@@ -697,7 +719,7 @@ describe("Safe decoders", () => {
         expect(decodeString(decoder, input)).toEqual(expected);
       });
 
-      it("should support decoder which modify the value (like map)", () => {
+      it("should support transformers (like map)", () => {
         const decoder = record(map(({ length }) => length, str));
 
         const input = `

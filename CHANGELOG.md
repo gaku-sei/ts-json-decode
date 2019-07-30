@@ -1,5 +1,18 @@
 ## [Unreleased]
 
+### Added
+
+- New `record` decoder
+
+### Changed
+
+- Performance: Objects are now duplicated when using the `object` and `record` decoders
+- Breaking: `object` filters out the unowned properties
+
+### Fixed
+
+- `map` (and all the "transformers") can be used with `object` or `record`
+
 ## [0.5.0] - 2019-07-02
 
 ### Changed

@@ -4,6 +4,7 @@ import {
   DecoderDict,
   DecoderValueDict,
   getAccurateTypeOf,
+  hasOwnProperty,
 } from "./shared";
 
 export interface Composeable {
@@ -272,6 +273,7 @@ export const union: Union = (decoder: Decoder<any>, ...values: Array<any>) =>
     },
   );
 
+// `object` will build a new object at runtime, and should probably not be used for large objects
 export const object = <T extends DecoderDict>(
   decoders: T,
 ): Decoder<DecoderValueDict<T>> => (value): DecoderValueDict<T> => {
@@ -279,9 +281,12 @@ export const object = <T extends DecoderDict>(
     throw new DecodeError("object", getAccurateTypeOf(value));
   }
 
+  // If compose is dropped in favor of merge(Object), we can drop the shallow copy too
+  const decodedValue: typeof value = { ...value };
+
   for (const key in decoders) {
     try {
-      decoders[key](value[key]);
+      decodedValue[key] = decoders[key](value[key]);
     } catch (error) {
       if (error instanceof DecodeError) {
         throw new DecodeError(
@@ -294,7 +299,7 @@ export const object = <T extends DecoderDict>(
     }
   }
 
-  return value;
+  return decodedValue;
 };
 
 // `record` will build a new object at runtime, and should probably not be used for large objects
@@ -306,10 +311,10 @@ export const record = <T>(decoder: Decoder<T>): Decoder<Record<string, T>> => (
     throw new DecodeError("record", getAccurateTypeOf(value));
   }
 
-  const decodedValue: Record<string, T> = {};
+  const decodedValue: typeof value = {};
 
   for (const key in value) {
-    if (!Object.prototype.hasOwnProperty.call(value, key)) {
+    if (!hasOwnProperty(value, key)) {
       continue;
     }
 
@@ -343,6 +348,8 @@ export const field = <T>(name: string, decoder: Decoder<T>): Decoder<T> => (
   return decoder(value[name]);
 };
 
+// We might consider dropping this function in favor of a more specific merge(Object)
+// Since merging objects is currently the only use case
 export const compose: Composeable = (...decoders: Array<Decoder<any>>) => (
   value: any,
 ) => decoders.reduce((acc, reducer) => reducer(acc), value);
