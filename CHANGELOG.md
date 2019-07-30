@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.5.1] - 2019-07-30
+
 ### Added
 
 - New `record` decoder
@@ -7,7 +9,6 @@
 ### Changed
 
 - Performance: Objects are now duplicated when using the `object` and `record` decoders
-- Breaking: `object` filters out the unowned properties
 
 ### Fixed
 
