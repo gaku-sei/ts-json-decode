@@ -13,6 +13,7 @@ import {
   oneOf,
   str,
   union,
+  record,
 } from "../src/safeDecoders";
 import { DecodeError, ParseError, Decoder } from "../src/shared";
 
@@ -610,6 +611,124 @@ describe("Safe decoders", () => {
 
         expect(decodeString(decoder)(input)).toEqual(expected);
         expect(decodeString(decoder, input)).toEqual(expected);
+      });
+    });
+
+    describe("record", () => {
+      it("should parse a simple record according to the given decoder", () => {
+        const decoder = record(num);
+
+        const input = `
+          {
+            "foo": 1,
+            "bar": 2,
+            "baz": 3
+          }
+        `;
+
+        const expected = {
+          foo: 1,
+          bar: 2,
+          baz: 3,
+        };
+
+        expect(decodeString(decoder)(input)).toEqual(expected);
+        expect(decodeString(decoder, input)).toEqual(expected);
+      });
+
+      it("should parse a simple record according to the given decoder (string)", () => {
+        const decoder = record(str);
+
+        const input = `
+          {
+            "foo": "bar",
+            "bar": "baz",
+            "baz": "qux"
+          }
+        `;
+
+        const expected = {
+          foo: "bar",
+          bar: "baz",
+          baz: "qux",
+        };
+
+        expect(decodeString(decoder)(input)).toEqual(expected);
+        expect(decodeString(decoder, input)).toEqual(expected);
+      });
+
+      it("should support complex decoders", () => {
+        const decoder = record(nullable(str));
+
+        const input = `
+          {
+            "foo": "bar",
+            "bar": null,
+            "baz": "qux"
+          }
+        `;
+
+        const expected = {
+          foo: "bar",
+          bar: null,
+          baz: "qux",
+        };
+
+        expect(decodeString(decoder)(input)).toEqual(expected);
+        expect(decodeString(decoder, input)).toEqual(expected);
+      });
+
+      it("should support complex recursivity", () => {
+        const decoder = record(record(num));
+
+        const input = `
+          {
+            "foo": { "bar": 1 },
+            "baz": { "qux": 2 }
+          }
+        `;
+
+        const expected = {
+          foo: { bar: 1 },
+          baz: { qux: 2 },
+        };
+
+        expect(decodeString(decoder)(input)).toEqual(expected);
+        expect(decodeString(decoder, input)).toEqual(expected);
+      });
+
+      it("should support decoder which modify the value (like map)", () => {
+        const decoder = record(map(({ length }) => length, str));
+
+        const input = `
+          {
+            "foo": "baz",
+            "baz": "barqux"
+          }
+        `;
+
+        const expected = {
+          foo: 3,
+          baz: 6,
+        };
+
+        expect(decodeString(decoder)(input)).toEqual(expected);
+        expect(decodeString(decoder, input)).toEqual(expected);
+      });
+
+      it("should fail with a nice error message on error", () => {
+        const decoder = record(str);
+
+        const input = `
+          {
+            "foo": "bar",
+            "bar": "baz",
+            "baz": 42
+          }
+        `;
+
+        expect(() => decodeString(decoder)(input)).toThrow(DecodeError);
+        expect(() => decodeString(decoder, input)).toThrow(DecodeError);
       });
     });
 

@@ -297,6 +297,39 @@ export const object = <T extends DecoderDict>(
   return value;
 };
 
+// `record` will build a new object at runtime, and should probably not be used for large objects
+export const record = <T>(decoder: Decoder<T>): Decoder<Record<string, T>> => (
+  value,
+): Record<string, T> => {
+  // Records are plain object under the hood
+  if (!isPlainObject(value)) {
+    throw new DecodeError("record", getAccurateTypeOf(value));
+  }
+
+  const decodedValue: Record<string, T> = {};
+
+  for (const key in value) {
+    if (!Object.prototype.hasOwnProperty.call(value, key)) {
+      continue;
+    }
+
+    try {
+      decodedValue[key] = decoder(value[key]);
+    } catch (error) {
+      if (error instanceof DecodeError) {
+        throw new DecodeError(
+          `${error.expected} at field "${key}"`,
+          error.received,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  return decodedValue;
+};
+
 export const field = <T>(name: string, decoder: Decoder<T>): Decoder<T> => (
   value,
 ): T => {
